@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10', '3.11', '3.12']
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install package
+        run: python -m pip install -e .
+
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Smoke test decision CLI
+        run: |
+          agent-reflex risk --input examples/risk-production-write.json > /tmp/agent-reflex-result.json
+          agent-reflex check /tmp/agent-reflex-result.json
+          agent-reflex route --input examples/route-message.json
+
+      - name: Smoke test safe Hermes installer
+        run: |
+          agent-reflex-hermes-install --dry-run --target /tmp/agent-reflex-hermes-skills
+          agent-reflex-hermes-install --target /tmp/agent-reflex-hermes-skills
+          test -f /tmp/agent-reflex-hermes-skills/agent-reflex/SKILL.md

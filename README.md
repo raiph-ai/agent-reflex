@@ -26,6 +26,10 @@ python3 -m venv .venv
 python3 -m pip install -e .
 ```
 
+## Documentation site
+
+Static documentation lives in `docs/` and is deployable with GitHub Pages. The Pages workflow publishes it from GitHub Actions whenever `docs/**` changes.
+
 ## Hermes integration
 
 Install the bundled Hermes skill safely:

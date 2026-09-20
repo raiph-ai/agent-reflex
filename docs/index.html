@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent Reflex</title>
+  <meta name="description" content="Fast structured decision hooks for Hermes Agent.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="hero">
+    <nav>
+      <strong>Agent Reflex</strong>
+      <a href="https://github.com/raiph-ai/agent-reflex">GitHub</a>
+    </nav>
+    <section>
+      <p class="eyebrow">Hermes Agent integration</p>
+      <h1>Fast structured decision hooks for autonomous agents.</h1>
+      <p class="lead">Route, guard, and score agent actions before the big model thinks. Agent Reflex gives Hermes a typed decision layer without making it dependent on any one model or service.</p>
+      <div class="actions">
+        <a class="button" href="#quickstart">Quickstart</a>
+        <a class="button secondary" href="https://github.com/raiph-ai/agent-reflex">View repo</a>
+      </div>
+    </section>
+  </header>
+
+  <main>
+    <section class="grid">
+      <article>
+        <h2>Route</h2>
+        <p>Classify incoming tasks by project, intent, priority, and recommended agent.</p>
+      </article>
+      <article>
+        <h2>Guard</h2>
+        <p>Preflight risky work like publishing, production writes, destructive changes, credentials, and financial actions.</p>
+      </article>
+      <article>
+        <h2>Validate</h2>
+        <p>Check whether the final output satisfies requirements before the agent declares success.</p>
+      </article>
+    </section>
+
+    <section id="quickstart" class="panel">
+      <h2>Quickstart</h2>
+      <pre><code>git clone https://github.com/raiph-ai/agent-reflex.git
+cd agent-reflex
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install -e .
+agent-reflex risk --input examples/risk-production-write.json</code></pre>
+    </section>
+
+    <section class="panel">
+      <h2>Safe Hermes install</h2>
+      <p>The bundled Hermes skill is designed to fail safe. If the CLI is absent, times out, or returns invalid JSON, Hermes continues with a manual fallback checklist instead of breaking.</p>
+      <pre><code>agent-reflex-hermes-install --dry-run
+agent-reflex-hermes-install --target "$HERMES_HOME/skills"</code></pre>
+      <ul>
+        <li>Dry-run support before writing files.</li>
+        <li>No overwrite unless <code>--force</code> is passed.</li>
+        <li>Backup created as <code>agent-reflex.bak</code> before replacement.</li>
+        <li>Temporary staging prevents half-installed skills.</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>Decision envelope</h2>
+      <p>Every decision returns a stable JSON envelope so Hermes can reason over the result predictably.</p>
+      <pre><code>{
+  "decision": "requires_approval",
+  "confidence": 0.9,
+  "provider": "rules",
+  "thresholds": {},
+  "fallback": false,
+  "risk_level": "high",
+  "requires_human_approval": true,
+  "requires_verification": true
+}</code></pre>
+    </section>
+
+    <section class="panel">
+      <h2>Why this exists</h2>
+      <p>Most agents use the main reasoning model for everything. Agent Reflex handles the small, repeatable decisions with typed outputs so the orchestrator can stay focused on execution, judgment, and communication.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>MIT licensed. Built by Red Circle Studio as an open-source Hermes Agent companion.</p>
+  </footer>
+</body>
+</html>
