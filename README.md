@@ -21,8 +21,35 @@ Agent Reflex gives those decisions a contract.
 ## Install locally
 
 ```bash
+python3 -m venv .venv
+. .venv/bin/activate
 python3 -m pip install -e .
 ```
+
+## Hermes integration
+
+Install the bundled Hermes skill safely:
+
+```bash
+agent-reflex-hermes-install --dry-run
+agent-reflex-hermes-install --target "$HERMES_HOME/skills"
+```
+
+If a skill already exists, the installer refuses to overwrite it unless you pass `--force`. With `--force`, it creates `agent-reflex.bak` first. The installer stages files in a temporary directory and only moves the completed skill into place, so a failed install should not leave Hermes half-modified.
+
+After install, restart or `/reset` Hermes so the skill index reloads.
+
+### Fallback behavior
+
+The bundled `agent-reflex` Hermes skill is intentionally safe if the CLI is absent or broken. If `agent-reflex` fails, Hermes should continue with the skill's manual fallback checklist:
+
+- require approval for external writes, production systems, destructive changes, credentials, public publishing, or financial actions;
+- verify non-low-risk changes before claiming success;
+- save only durable preferences/facts to memory;
+- load the narrowest relevant skill/toolset;
+- continue work if any stated requirement is missing or unverified.
+
+This means Agent Reflex can improve Hermes decisions without becoming a single point of failure.
 
 ## CLI
 
