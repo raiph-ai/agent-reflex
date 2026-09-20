@@ -19,6 +19,8 @@
       <p class="lead">Route, guard, and score agent actions before the big model thinks. Agent Reflex gives Hermes a typed decision layer without making it dependent on any one model or service.</p>
       <div class="actions">
         <a class="button" href="#quickstart">Quickstart</a>
+        <a class="button secondary" href="providers.md">Providers</a>
+        <a class="button secondary" href="hermes.md">Hermes</a>
         <a class="button secondary" href="https://github.com/raiph-ai/agent-reflex">View repo</a>
       </div>
     </section>
@@ -76,6 +78,15 @@ agent-reflex-hermes-install --target "$HERMES_HOME/skills"</code></pre>
   "requires_human_approval": true,
   "requires_verification": true
 }</code></pre>
+    </section>
+
+    <section class="panel">
+      <h2>Provider roadmap</h2>
+      <p>The default provider is dependency-free <code>rules</code>. Jev/TypeSafe, Cactus, and OpenAI-compatible adapters are reserved behind safe fallbacks so missing credentials never break Hermes.</p>
+      <pre><code>agent-reflex risk --provider rules --input task.json
+agent-reflex risk --provider jev --input task.json
+agent-reflex validate --provider openai-compatible --input result.json</code></pre>
+      <p><a href="providers.md">Read provider adapter docs</a></p>
     </section>
 
     <section class="panel">

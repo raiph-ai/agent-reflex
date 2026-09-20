@@ -105,12 +105,14 @@ Current:
 
 - `rules` — deterministic, no dependencies, testable
 
-Planned:
+Planned provider adapters are documented in [`docs/providers.md`](docs/providers.md):
 
-- `jev` — TypeSafe/Jev structured decision endpoint
-- `cactus` — Cactus-compatible structured decision endpoint
-- `openai` / `anthropic` structured output
-- `ollama` / local models
+- `jev` / `typesafe` — TypeSafe/Jev structured decision endpoint
+- `cactus` — Cactus-compatible structured decision endpoint or local runtime
+- `openai-compatible` — OpenAI-compatible structured output endpoint
+- `ollama` / local models — future local adapters
+
+Non-rules providers currently fail safe to `rules` when credentials or transports are missing.
 
 ## MVP schemas
 

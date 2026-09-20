@@ -5,7 +5,7 @@ import json
 import sys
 from pathlib import Path
 
-from .engine import decide
+from .providers import decide_with_provider
 from .schema import KINDS, validate_result
 
 
@@ -16,6 +16,7 @@ def main(argv: list[str] | None = None) -> int:
     for kind in KINDS:
         p = sub.add_parser(kind)
         p.add_argument("--input", "-i", required=True, help="Path to JSON input, or '-' for stdin")
+        p.add_argument("--provider", default="rules", help="Decision provider: rules, jev, cactus, openai-compatible")
 
     check = sub.add_parser("check", help="Validate a decision result JSON file")
     check.add_argument("path")
@@ -30,7 +31,7 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     payload = _load_json(args.input)
-    result = decide(args.command, payload)
+    result = decide_with_provider(args.command, payload, args.provider)
     print(json.dumps(result, indent=2, sort_keys=True))
     return 0
 
