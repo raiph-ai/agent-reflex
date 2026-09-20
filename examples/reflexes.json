@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "reflexes": {
+    "route-task": {
+      "kind": "route",
+      "provider": "rules",
+      "policy": {
+        "if_confidence_below": "ask_clarification",
+        "max_risk_without_confirmation": 0.35
+      }
+    },
+    "guard-action": {
+      "kind": "risk",
+      "provider": "rules",
+      "policy": {
+        "require_approval_at": "high"
+      }
+    }
+  }
+}

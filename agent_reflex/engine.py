@@ -119,7 +119,12 @@ def decide(kind: str, payload: dict[str, Any]) -> dict[str, Any]:
         fn = getattr(engine, kind)
     except AttributeError as exc:
         raise ValueError(f"unknown decision kind: {kind}") from exc
-    return fn(payload)
+    result = fn(payload)
+    # ponytail: stable envelope now; real provider traces can fill this later.
+    result.setdefault("provider", "rules")
+    result.setdefault("thresholds", {})
+    result.setdefault("fallback", False)
+    return result
 
 
 def _text(payload: dict[str, Any]) -> str:

@@ -6,18 +6,31 @@ import sys
 from pathlib import Path
 
 from .engine import decide
-
-KINDS = ("route", "risk", "memory", "skill", "validate")
+from .schema import KINDS, validate_result
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="agent-reflex", description="Typed decisions for autonomous agents")
-    parser.add_argument("kind", choices=KINDS)
-    parser.add_argument("--input", "-i", required=True, help="Path to JSON input, or '-' for stdin")
+    sub = parser.add_subparsers(dest="command")
+
+    for kind in KINDS:
+        p = sub.add_parser(kind)
+        p.add_argument("--input", "-i", required=True, help="Path to JSON input, or '-' for stdin")
+
+    check = sub.add_parser("check", help="Validate a decision result JSON file")
+    check.add_argument("path")
+
     args = parser.parse_args(argv)
+    if args.command == "check":
+        validate_result(_load_json(args.path))
+        print(json.dumps({"ok": True}, indent=2))
+        return 0
+    if args.command not in KINDS:
+        parser.print_help()
+        return 2
 
     payload = _load_json(args.input)
-    result = decide(args.kind, payload)
+    result = decide(args.command, payload)
     print(json.dumps(result, indent=2, sort_keys=True))
     return 0
 

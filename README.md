@@ -1,6 +1,6 @@
 # Agent Reflex
 
-Typed decisions for autonomous agents.
+Fast structured decision hooks for Hermes Agent — route, guard, and score agent actions before the big model thinks.
 
 Agent Reflex is a small, model-agnostic decision layer for Hermes Agent and other agent frameworks. It turns messy agent context into boring, structured decisions: route, risk, memory, skill selection, and output validation.
 
@@ -32,9 +32,10 @@ agent-reflex memory --input examples/memory-preference.json
 agent-reflex skill --input examples/skill-website-task.json
 agent-reflex validate --input examples/output-validation.json
 agent-reflex route --input examples/route-message.json
+agent-reflex check result.json
 ```
 
-Every command emits JSON.
+Every decision command emits JSON with a stable envelope: `decision`, `confidence`, `provider`, `thresholds`, and `fallback`.
 
 ## Example
 
