@@ -50,16 +50,23 @@ Current behavior: if these are missing or the provider fails, Agent Reflex falls
 
 ### `cactus`
 
-Reserved for Cactus-compatible structured decision endpoints or local runtimes.
+Cactus can run as a local OpenAI-compatible HTTP server:
+
+```bash
+brew install cactus-compute/cactus/cactus
+cactus serve Cactus-Compute/needle --port 8088 --no-cloud-handoff
+```
 
 Expected environment:
 
 ```bash
-export AGENT_REFLEX_CACTUS_URL="http://127.0.0.1:..."
-export AGENT_REFLEX_CACTUS_API_KEY="optional-or-runtime-specific"
+export AGENT_REFLEX_CACTUS_URL="http://127.0.0.1:8088/v1"
+export AGENT_REFLEX_CACTUS_MODEL="needle-cq4"
 ```
 
-Current behavior: safe fallback to `rules`.
+`AGENT_REFLEX_CACTUS_API_KEY` is optional for a local server; Agent Reflex supplies a local placeholder when absent.
+
+Current behavior: calls the OpenAI-compatible endpoint and falls back to `rules` if Cactus returns empty/non-JSON content or is unavailable.
 
 ### `openai-compatible`
 

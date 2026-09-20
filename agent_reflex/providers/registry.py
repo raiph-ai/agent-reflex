@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from .cactus import CactusProvider
 from .mock import MockProvider
 from .openai_compatible import OpenAICompatibleProvider
 from .stub import UnconfiguredProvider
@@ -11,7 +12,7 @@ PROVIDER_CLASSES = {
     "mock": MockProvider,
     "jev": lambda: UnconfiguredProvider("jev", "AGENT_REFLEX_JEV_URL", "AGENT_REFLEX_JEV_API_KEY"),
     "typesafe": lambda: UnconfiguredProvider("typesafe", "AGENT_REFLEX_JEV_URL", "AGENT_REFLEX_JEV_API_KEY"),
-    "cactus": lambda: UnconfiguredProvider("cactus", "AGENT_REFLEX_CACTUS_URL", "AGENT_REFLEX_CACTUS_API_KEY"),
+    "cactus": CactusProvider,
     "openai-compatible": OpenAICompatibleProvider,
 }
 
