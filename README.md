@@ -64,6 +64,7 @@ agent-reflex skill --input examples/skill-website-task.json
 agent-reflex validate --input examples/output-validation.json
 agent-reflex route --input examples/route-message.json
 agent-reflex check result.json
+python examples/hermes_poc.py
 ```
 
 Every decision command emits JSON with a stable envelope: `decision`, `confidence`, `provider`, `thresholds`, and `fallback`.
