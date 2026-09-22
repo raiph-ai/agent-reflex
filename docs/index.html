@@ -20,6 +20,7 @@
       <div class="actions">
         <a class="button" href="#quickstart">Quickstart</a>
         <a class="button secondary" href="providers.md">Providers</a>
+        <a class="button secondary" href="market.md">Market</a>
         <a class="button secondary" href="hermes.md">Hermes</a>
         <a class="button secondary" href="https://github.com/raiph-ai/agent-reflex">View repo</a>
       </div>
@@ -87,6 +88,21 @@ agent-reflex-hermes-install --target "$HERMES_HOME/skills"</code></pre>
 agent-reflex risk --provider jev --input task.json
 agent-reflex validate --provider openai-compatible --input result.json</code></pre>
       <p><a href="providers.md">Read provider adapter docs</a></p>
+    </section>
+
+    <section class="panel">
+      <h2>Provider policy</h2>
+      <p>Phase II adds <code>auto</code> mode: Agent Reflex can try Cactus, Jev, OpenAI-compatible providers, and deterministic rules in a configurable order. Rules remain the terminal fallback and risk guardrail.</p>
+      <pre><code>export AGENT_REFLEX_PROVIDER=auto
+export AGENT_REFLEX_PROVIDER_ORDER="cactus,jev,openai-compatible,rules"
+agent-reflex risk --input examples/risk-production-write.json</code></pre>
+      <p><a href="providers.md">Read provider policy docs</a></p>
+    </section>
+
+    <section class="panel">
+      <h2>Open-source + commercial path</h2>
+      <p>The open-source core is a provider-neutral decision contract. A commercial version can become a control plane for teams: observability, approval workflows, policy management, provider benchmarking, audit trails, and hosted APIs.</p>
+      <p><a href="market.md">Read market positioning</a></p>
     </section>
 
     <section class="panel">

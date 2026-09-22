@@ -5,6 +5,7 @@ from typing import Any
 from .cactus import CactusProvider
 from .mock import MockProvider
 from .openai_compatible import OpenAICompatibleProvider
+from .policy import AUTO_PROVIDER, apply_rules_guardrail, configured_provider_name, provider_order
 from .stub import UnconfiguredProvider
 
 PROVIDER_CLASSES = {
@@ -18,7 +19,7 @@ PROVIDER_CLASSES = {
 
 
 def get_provider(name: str | None):
-    key = (name or "rules").lower()
+    key = configured_provider_name(name)
     try:
         provider_factory = PROVIDER_CLASSES[key]
     except KeyError as exc:
@@ -27,13 +28,39 @@ def get_provider(name: str | None):
 
 
 def decide_with_provider(kind: str, payload: dict[str, Any], provider_name: str | None = None) -> dict[str, Any]:
-    provider = get_provider(provider_name)
+    provider_key = configured_provider_name(provider_name)
+    if provider_key == AUTO_PROVIDER:
+        return decide_with_policy(kind, payload)
+
+    provider = get_provider(provider_key)
     try:
-        return provider.decide(kind, payload)
+        result = provider.decide(kind, payload)
+        return apply_rules_guardrail(kind, result, payload)
     except Exception as exc:
-        # ponytail: provider failures must not break agent flow; fall back to rules.
-        fallback = MockProvider().decide(kind, payload)
-        fallback["provider"] = "rules"
-        fallback["fallback"] = True
-        fallback["fallback_reason"] = f"{provider.name}: {exc}"
-        return fallback
+        return _rules_fallback(kind, payload, f"{provider.name}: {exc}")
+
+
+def decide_with_policy(kind: str, payload: dict[str, Any], policy: str | None = None) -> dict[str, Any]:
+    errors: list[str] = []
+    for name in provider_order(policy):
+        provider = get_provider(name)
+        try:
+            result = provider.decide(kind, payload)
+            result = apply_rules_guardrail(kind, result, payload)
+            if errors:
+                result["fallback"] = name == "rules"
+                result["fallback_reason"] = "; ".join(errors)
+                result["attempted_providers"] = provider_order(policy)
+            return result
+        except Exception as exc:
+            errors.append(f"{provider.name}: {exc}")
+
+    return _rules_fallback(kind, payload, "; ".join(errors) or "no policy provider returned a decision")
+
+
+def _rules_fallback(kind: str, payload: dict[str, Any], reason: str) -> dict[str, Any]:
+    fallback = MockProvider().decide(kind, payload)
+    fallback["provider"] = "rules"
+    fallback["fallback"] = True
+    fallback["fallback_reason"] = reason
+    return fallback

@@ -16,7 +16,7 @@ def main(argv: list[str] | None = None) -> int:
     for kind in KINDS:
         p = sub.add_parser(kind)
         p.add_argument("--input", "-i", required=True, help="Path to JSON input, or '-' for stdin")
-        p.add_argument("--provider", default="rules", help="Decision provider: rules, jev, cactus, openai-compatible")
+        p.add_argument("--provider", default=None, help="Decision provider: rules, auto, jev, cactus, openai-compatible")
 
     check = sub.add_parser("check", help="Validate a decision result JSON file")
     check.add_argument("path")

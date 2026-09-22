@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from agent_reflex.providers import decide_with_provider
 
 
@@ -12,7 +13,15 @@ def main() -> int:
     route = decide_with_provider("route", payload)
     risk = decide_with_provider("risk", payload)
     skill = decide_with_provider("skill", payload)
-    jev_fallback = decide_with_provider("risk", payload, "jev")
+    previous_order = os.environ.get("AGENT_REFLEX_PROVIDER_ORDER")
+    os.environ["AGENT_REFLEX_PROVIDER_ORDER"] = "jev,rules"
+    try:
+        auto_policy = decide_with_provider("risk", payload, "auto")
+    finally:
+        if previous_order is None:
+            os.environ.pop("AGENT_REFLEX_PROVIDER_ORDER", None)
+        else:
+            os.environ["AGENT_REFLEX_PROVIDER_ORDER"] = previous_order
 
     approval = "yes" if risk["requires_human_approval"] else "no"
     verification = "yes" if risk["requires_verification"] else "no"
@@ -38,11 +47,12 @@ def main() -> int:
     print("Skill recommendation")
     print(f"- skills: {', '.join(skill['skills'])}")
     print(f"- toolsets: {', '.join(skill['toolsets']) or 'none'}\n")
-    print("Provider fallback check")
-    print(f"- requested_provider: jev")
-    print(f"- actual_provider: {jev_fallback['provider']}")
-    print(f"- fallback: {json.dumps(jev_fallback['fallback'])}")
-    print(f"- fallback_reason: {jev_fallback.get('fallback_reason', 'none')}\n")
+    print("Provider policy check")
+    print(f"- requested_provider: auto")
+    print(f"- attempted_providers: {', '.join(auto_policy.get('attempted_providers', ['rules']))}")
+    print(f"- actual_provider: {auto_policy['provider']}")
+    print(f"- fallback: {json.dumps(auto_policy['fallback'])}")
+    print(f"- fallback_reason: {auto_policy.get('fallback_reason', 'none')}\n")
     print("Hermes decision")
     print(f"- {hermes_decision}")
     return 0

@@ -4,7 +4,7 @@ Fast structured decision hooks for Hermes Agent — route, guard, and score agen
 
 Agent Reflex is a small, model-agnostic decision layer for Hermes Agent and other agent frameworks. It turns messy agent context into boring, structured decisions: route, risk, memory, skill selection, and output validation.
 
-It is designed for Jev/Cactus-style models that excel at fast typed decisions, but it works today with a deterministic rules backend so the interface can be tested without any model account.
+It is designed for Jev/Cactus-style models that excel at fast typed decisions, but it works today with a deterministic rules backend so the interface can be tested without any model account. The marketable posture is provider-neutral: Agent Reflex should get better as more Jev-like competitors appear, not become locked to one of them.
 
 ## Why
 
@@ -100,20 +100,34 @@ Future integration can become a Hermes toolset/plugin:
 agent_reflex_decide(schema="risk", input={...})
 ```
 
-## Backends
+## Backends and provider policy
 
 Current:
 
 - `rules` — deterministic, no dependencies, testable
+- `auto` — policy-driven provider selection with safe fallback to `rules`
 
-Planned provider adapters are documented in [`docs/providers.md`](docs/providers.md):
+Provider adapters are documented in [`docs/providers.md`](docs/providers.md):
 
 - `jev` / `typesafe` — TypeSafe/Jev structured decision endpoint
 - `cactus` — Cactus-compatible structured decision endpoint or local runtime
 - `openai-compatible` — OpenAI-compatible structured output endpoint
 - `ollama` / local models — future local adapters
 
-Non-rules providers currently fail safe to `rules` when credentials or transports are missing.
+Recommended provider-neutral mode:
+
+```bash
+export AGENT_REFLEX_PROVIDER=auto
+export AGENT_REFLEX_PROVIDER_POLICY=auto
+export AGENT_REFLEX_PROVIDER_ORDER="cactus,jev,openai-compatible,rules"
+agent-reflex risk --input examples/risk-production-write.json
+```
+
+Non-rules providers fail safe to `rules` when credentials or transports are missing. Risk decisions also receive deterministic rules guardrails so a model provider can improve the decision without weakening safety.
+
+## Market posture
+
+Agent Reflex should be positioned as a provider-neutral reflex layer, not a wrapper around one model vendor. See [`docs/market.md`](docs/market.md) for the open-source differentiation and commercial/control-plane path.
 
 ## MVP schemas
 
