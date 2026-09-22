@@ -2,6 +2,8 @@
 
 Fast structured decision hooks for Hermes Agent — route, guard, and score agent actions before the big model thinks.
 
+**Live site:** https://raiph-ai.github.io/agent-reflex/
+
 Agent Reflex is a small, model-agnostic decision layer for Hermes Agent and other agent frameworks. It turns messy agent context into boring, structured decisions: route, risk, memory, skill selection, and output validation.
 
 It is designed for Jev/Cactus-style models that excel at fast typed decisions, but it works today with a deterministic rules backend so the interface can be tested without any model account. The marketable posture is provider-neutral: Agent Reflex should get better as more Jev-like competitors appear, not become locked to one of them.
@@ -35,6 +37,12 @@ python3 -m pip install -e .
 ```
 
 ## Documentation site
+
+The Agent Reflex project page is live at:
+
+```text
+https://raiph-ai.github.io/agent-reflex/
+```
 
 Static documentation lives in `docs/` and is deployable with GitHub Pages. The Pages workflow publishes it from GitHub Actions whenever `docs/**` changes.
 
