@@ -20,6 +20,7 @@
       <div class="actions">
         <a class="button" href="#quickstart">Quickstart</a>
         <a class="button secondary" href="providers.md">Providers</a>
+        <a class="button secondary" href="web-ui.md">Web UI</a>
         <a class="button secondary" href="market.md">Market</a>
         <a class="button secondary" href="hermes.md">Hermes</a>
         <a class="button secondary" href="https://github.com/raiph-ai/agent-reflex">View repo</a>
@@ -88,6 +89,14 @@ agent-reflex-hermes-install --target "$HERMES_HOME/skills"</code></pre>
 agent-reflex risk --provider jev --input task.json
 agent-reflex validate --provider openai-compatible --input result.json</code></pre>
       <p><a href="providers.md">Read provider adapter docs</a></p>
+    </section>
+
+    <section class="panel">
+      <h2>Local web UI</h2>
+      <p>Configure provider policy, Cactus, Jev, and OpenAI-compatible endpoints from a local browser page.</p>
+      <pre><code>agent-reflex-web --host 127.0.0.1 --port 8765
+open http://127.0.0.1:8765</code></pre>
+      <p><a href="web-ui.md">Read web UI docs</a></p>
     </section>
 
     <section class="panel">

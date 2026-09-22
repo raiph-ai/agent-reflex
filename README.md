@@ -64,10 +64,21 @@ agent-reflex skill --input examples/skill-website-task.json
 agent-reflex validate --input examples/output-validation.json
 agent-reflex route --input examples/route-message.json
 agent-reflex check result.json
+agent-reflex-web --host 127.0.0.1 --port 8765
 python examples/hermes_poc.py
 ```
 
 Every decision command emits JSON with a stable envelope: `decision`, `confidence`, `provider`, `thresholds`, and `fallback`.
+
+## Local web UI
+
+Agent Reflex includes a local-only configuration UI:
+
+```bash
+agent-reflex-web --host 127.0.0.1 --port 8765
+```
+
+Open `http://127.0.0.1:8765` to edit provider policy, Cactus/Jev/OpenAI-compatible settings, and run a test decision. The UI writes `~/.agent-reflex/config.json`; environment variables still override config values. See [`docs/web-ui.md`](docs/web-ui.md).
 
 ## Example
 

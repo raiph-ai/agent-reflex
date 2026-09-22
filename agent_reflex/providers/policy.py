@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import os
 from typing import Any
+
+from agent_reflex.config import get_setting
 
 from .mock import MockProvider
 
@@ -12,7 +13,7 @@ RISK_RANK = {"low": 0, "medium": 1, "high": 2, "critical": 3}
 
 def configured_provider_name(explicit_provider: str | None = None) -> str:
     """Resolve the requested provider without making CLI users pass flags every time."""
-    return (explicit_provider or os.environ.get("AGENT_REFLEX_PROVIDER") or "rules").lower()
+    return (explicit_provider or get_setting("AGENT_REFLEX_PROVIDER") or "rules").lower()
 
 
 def provider_order(policy: str | None = None) -> list[str]:
@@ -21,11 +22,11 @@ def provider_order(policy: str | None = None) -> list[str]:
     Environment override:
       AGENT_REFLEX_PROVIDER_ORDER="cactus,jev,openai-compatible,rules"
     """
-    raw = os.environ.get("AGENT_REFLEX_PROVIDER_ORDER")
+    raw = get_setting("AGENT_REFLEX_PROVIDER_ORDER")
     if raw:
         order = [item.strip().lower() for item in raw.split(",") if item.strip()]
     else:
-        policy_name = (policy or os.environ.get("AGENT_REFLEX_PROVIDER_POLICY") or "auto").lower()
+        policy_name = (policy or get_setting("AGENT_REFLEX_PROVIDER_POLICY") or "auto").lower()
         if policy_name == "local-first":
             order = ["cactus", "rules"]
         elif policy_name == "cloud-first":

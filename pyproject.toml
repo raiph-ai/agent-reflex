@@ -19,6 +19,7 @@ classifiers = [
 
 [project.scripts]
 agent-reflex = "agent_reflex.cli:main"
+agent-reflex-web = "agent_reflex.web:main"
 agent-reflex-hermes-install = "agent_reflex.hermes.install:main"
 
 [tool.setuptools.packages.find]

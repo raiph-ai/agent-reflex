@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import json
-import os
 import urllib.request
 from typing import Any
+
+from agent_reflex.config import get_setting
 
 
 class OpenAICompatibleProvider:
@@ -15,9 +16,9 @@ class OpenAICompatibleProvider:
     model_env = "AGENT_REFLEX_OPENAI_MODEL"
 
     def decide(self, kind: str, payload: dict[str, Any]) -> dict[str, Any]:
-        base_url = os.environ.get(self.url_env)
-        api_key = os.environ.get(self.key_env)
-        model = os.environ.get(self.model_env, "needle-cq4")
+        base_url = get_setting(self.url_env)
+        api_key = get_setting(self.key_env)
+        model = get_setting(self.model_env, "needle-cq4") or "needle-cq4"
         missing = [name for name, value in ((self.url_env, base_url), (self.key_env, api_key)) if not value]
         if missing:
             raise RuntimeError(f"missing environment: {', '.join(missing)}")

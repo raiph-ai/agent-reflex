@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import os
 from typing import Any
+
+from agent_reflex.config import get_setting
 
 
 class UnconfiguredProvider:
@@ -13,7 +14,7 @@ class UnconfiguredProvider:
         self.key_env = key_env
 
     def decide(self, kind: str, payload: dict[str, Any]) -> dict[str, Any]:
-        missing = [env for env in (self.url_env, self.key_env) if not os.environ.get(env)]
+        missing = [env for env in (self.url_env, self.key_env) if not get_setting(env)]
         if missing:
             raise RuntimeError(f"missing environment: {', '.join(missing)}")
         raise NotImplementedError(f"{self.name} provider transport is not implemented yet")
