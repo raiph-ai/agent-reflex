@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from agent_reflex.config import get_bool_setting, get_setting
-from agent_reflex.providers import decide_with_provider
+from agent_reflex.providers import decide_bundle_with_provider
 from agent_reflex.schema import KINDS
 
 DEFAULT_PREFLIGHT_KINDS = ("route", "risk", "skill")
@@ -39,14 +39,14 @@ def preflight(payload: dict[str, Any], provider: str | None = None, *, force: bo
             "decisions": {},
         }
 
-    decisions: dict[str, Any] = {}
-    for kind in configured_preflight_kinds():
-        decisions[kind] = decide_with_provider(kind, payload, provider)
+    kinds = configured_preflight_kinds()
+    decisions = decide_bundle_with_provider(payload, provider, kinds)
 
     return {
         "enabled": enabled,
         "skipped": False,
         "provider": provider or get_setting("AGENT_REFLEX_PROVIDER", "rules"),
+        "bundled": True,
         "kinds": list(decisions),
         "decisions": decisions,
     }

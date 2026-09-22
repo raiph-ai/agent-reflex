@@ -18,7 +18,7 @@ Most agents use the main reasoning model for everything. That is expensive and i
 
 Agent Reflex gives those decisions a contract.
 
-Measured locally on a production-publish risk classification, deterministic rules returned in ~130 ms, local Cactus returned in ~635 ms, a full Cactus route/risk/skill preflight returned in ~1.48 sec, and the main Hermes reasoning model took ~27.8 sec. The point is not to replace the LLM; it is to reserve the full LLM for work that actually needs full reasoning.
+Measured locally on a production-publish risk classification, deterministic rules returned in ~130 ms, local Cactus returned in ~635 ms for a single risk call, a bundled Cactus route/risk/skill preflight returned in ~0.43 sec, and the main Hermes reasoning model took ~27.8 sec. The point is not to replace the LLM; it is to reserve the full LLM for work that actually needs full reasoning.
 
 Recommended escalation:
 

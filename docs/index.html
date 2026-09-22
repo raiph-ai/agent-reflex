@@ -58,8 +58,8 @@
           <span>Local Cactus / Needle reflex model. Private, local, and roughly <b>44x faster</b> than the main model test.</span>
         </article>
         <article>
-          <strong>~1.48 sec</strong>
-          <span>Full route + risk + skill preflight through Cactus. Roughly <b>19x faster</b> than the main model test.</span>
+          <strong>~0.43 sec</strong>
+          <span>Combined route + risk + skill preflight in one local Cactus call. Roughly <b>64x faster</b> than the main model test.</span>
         </article>
         <article>
           <strong>~27.8 sec</strong>
@@ -71,6 +71,26 @@ Local/private reflex     → Cactus
 Typed cloud reflex       → Jev / future providers
 Complex reasoning        → full LLM</code></pre>
       <p class="muted">Benchmark context: local macOS test, Agent Reflex CLI, Cactus/Needle on <code>127.0.0.1:8088</code>, Hermes main-model comparison using the same risk-classification task. Exact timings vary by machine and provider; the architectural point is stable: do not spend premium reasoning on repeatable traffic-light decisions.</p>
+    </section>
+
+    <section class="panel">
+      <p class="eyebrow">Decision escalation logic</p>
+      <h2>Local first. Reflex second. Full LLM only when needed.</h2>
+      <div class="flow">
+        <div><strong>1</strong><span>Task arrives</span></div>
+        <div><strong>2</strong><span>Rules run first for instant safety guardrails</span></div>
+        <div><strong>3</strong><span>One bundled reflex call to Cactus locally or Jev in the cloud</span></div>
+        <div><strong>4</strong><span>Escalate to the full LLM only for complex reasoning or low confidence</span></div>
+      </div>
+      <pre><code>User task
+  ↓
+Built-in rules baseline
+  ↓
+One bundled reflex call: route + risk + skill
+  ├─ local/private → Cactus
+  └─ typed cloud   → Jev / future providers
+  ↓
+Full LLM only if the decision needs deeper reasoning</code></pre>
     </section>
 
     <section id="quickstart" class="panel">

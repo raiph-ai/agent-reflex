@@ -39,6 +39,25 @@ class CactusProvider(OpenAICompatibleProvider):
             return self._decide_with_local_key(kind, payload)
         return super().decide(kind, payload)
 
+    def decide_bundle(self, payload: dict[str, Any], kinds: list[str]) -> dict[str, dict[str, Any]]:
+        base_url = get_setting(self.url_env)
+        api_key = get_setting(self.key_env)
+        model = get_setting(self.model_env, "needle-cq4") or "needle-cq4"
+        missing = [name for name, value in ((self.url_env, base_url),) if not value]
+        if missing:
+            raise RuntimeError(f"missing environment: {', '.join(missing)}")
+        if not api_key:
+            previous = os.environ.get(self.key_env)
+            os.environ[self.key_env] = "local-cactus"
+            try:
+                return self._bundle_call(str(base_url).rstrip("/"), "local-cactus", model, payload, kinds)
+            finally:
+                if previous is None:
+                    os.environ.pop(self.key_env, None)
+                else:
+                    os.environ[self.key_env] = previous
+        return self._bundle_call(str(base_url).rstrip("/"), str(api_key), model, payload, kinds)
+
     def _decide_with_local_key(self, kind: str, payload: dict[str, Any]) -> dict[str, Any]:
         previous = os.environ.get(self.key_env)
         os.environ[self.key_env] = "local-cactus"
@@ -49,6 +68,47 @@ class CactusProvider(OpenAICompatibleProvider):
                 os.environ.pop(self.key_env, None)
             else:
                 os.environ[self.key_env] = previous
+
+    def _bundle_call(self, base_url: str, api_key: str, model: str, payload: dict[str, Any], kinds: list[str]) -> dict[str, dict[str, Any]]:
+        rule_results = {kind: MockProvider().decide(kind, payload) for kind in kinds}
+        tool_name = "preflight_decision"
+        body = {
+            "model": model,
+            "messages": [
+                {
+                    "role": "system",
+                    "content": (
+                        "You are Agent Reflex. Call the provided tool once with bundled "
+                        "route, risk, and skill guidance for the user's task. Prefer safe "
+                        "decisions for production, external, destructive, credential, and financial actions."
+                    ),
+                },
+                {"role": "user", "content": json.dumps(payload, sort_keys=True)},
+            ],
+            "max_tokens": 260,
+            "tools": [{"type": "function", "function": _preflight_tool_definition(tool_name, kinds)}],
+            "tool_choice": {"type": "function", "function": {"name": tool_name}},
+        }
+        headers = {"Content-Type": "application/json"}
+        if api_key:
+            headers["Authorization"] = f"Bearer {api_key}"
+        req = urllib.request.Request(
+            f"{base_url}/chat/completions",
+            data=json.dumps(body).encode("utf-8"),
+            headers=headers,
+        )
+        with urllib.request.urlopen(req, timeout=30) as response:
+            data = json.loads(response.read().decode("utf-8"))
+        raw_args = _extract_tool_arguments(data)
+        results: dict[str, dict[str, Any]] = {}
+        for kind in kinds:
+            raw_for_kind = raw_args.get(kind) if isinstance(raw_args.get(kind), dict) else raw_args
+            results[kind] = _merge_decision(kind, rule_results[kind], raw_for_kind if isinstance(raw_for_kind, dict) else {})
+            results[kind]["provider"] = self.name
+            results[kind]["fallback"] = False
+            results[kind]["cactus_raw"] = raw_for_kind if isinstance(raw_for_kind, dict) else raw_args
+            results[kind]["bundle_provider"] = self.name
+        return results
 
     def _chat_json(self, base_url: str, api_key: str, model: str, kind: str, payload: dict[str, Any]) -> dict[str, Any]:
         """Use Cactus tool calls and normalize against deterministic rules.
@@ -137,6 +197,18 @@ def _tool_definition(kind: str, name: str) -> dict[str, Any]:
         "name": name,
         "description": f"Return an Agent Reflex {kind} decision.",
         "parameters": {"type": "object", "properties": properties},
+    }
+
+
+def _preflight_tool_definition(name: str, kinds: list[str]) -> dict[str, Any]:
+    properties = {kind: _tool_definition(kind, f"{kind}_decision")["parameters"] for kind in kinds}
+    return {
+        "name": name,
+        "description": "Return bundled Agent Reflex preflight decisions in one call.",
+        "parameters": {
+            "type": "object",
+            "properties": properties,
+        },
     }
 
 

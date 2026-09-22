@@ -23,10 +23,10 @@ A simple production-publish risk classification should not require a premium rea
 |---|---|---:|
 | Built-in `rules` | Obvious safety gates and deterministic policy | ~130 ms |
 | Local `cactus` | Private/local reflex decision | ~635 ms |
-| Cactus full preflight | `route + risk + skill` bundle | ~1.48 sec |
+| Bundled Cactus preflight | One call for `route + risk + skill` | ~0.43 sec |
 | Main Hermes LLM | Full reasoning model doing the same classification | ~27.8 sec |
 
-That makes a single Cactus risk decision roughly **44x faster** than asking the main model, and a full Cactus preflight roughly **19x faster** than a main-model classification turn. Rules are still fastest and should handle obvious cases first.
+That makes a single Cactus risk decision roughly **44x faster** than asking the main model, and a bundled Cactus preflight roughly **64x faster** than a main-model classification turn. Rules are still fastest and should handle obvious cases first.
 
 Recommended escalation path:
 

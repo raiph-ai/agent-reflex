@@ -107,7 +107,7 @@ export AGENT_REFLEX_CACTUS_MODEL="needle-cq4"
 
 `AGENT_REFLEX_CACTUS_API_KEY` is optional for a local server; Agent Reflex supplies a local placeholder when absent.
 
-Current behavior: uses a Cactus-specific tool-call adapter. Needle often returns empty plain-text content, so Agent Reflex forces an OpenAI-style function call, parses `tool_calls`, then repairs/fills the result with deterministic `rules` defaults. The result can report `provider: "cactus"` and `fallback: false` while rules still act as safety guardrails for missing or malformed fields.
+Current behavior: uses a Cactus-specific tool-call adapter. Needle often returns empty plain-text content, so Agent Reflex forces an OpenAI-style function call, parses `tool_calls`, then repairs/fills the result with deterministic `rules` defaults. For Hermes preflight, Agent Reflex now sends `route + risk + skill` as one bundled Cactus tool call instead of three separate local model calls. The result can report `provider: "cactus"` and `fallback: false` while rules still act as safety guardrails for missing or malformed fields.
 
 ### `openai-compatible`
 

@@ -8,6 +8,8 @@ from .openai_compatible import OpenAICompatibleProvider
 from .policy import AUTO_PROVIDER, apply_rules_guardrail, configured_provider_name, provider_order
 from .stub import UnconfiguredProvider
 
+DEFAULT_BUNDLE_KINDS = ("route", "risk", "skill")
+
 PROVIDER_CLASSES = {
     "rules": MockProvider,
     "mock": MockProvider,
@@ -56,6 +58,53 @@ def decide_with_policy(kind: str, payload: dict[str, Any], policy: str | None = 
             errors.append(f"{provider.name}: {exc}")
 
     return _rules_fallback(kind, payload, "; ".join(errors) or "no policy provider returned a decision")
+
+
+def decide_bundle_with_provider(
+    payload: dict[str, Any],
+    provider_name: str | None = None,
+    kinds: list[str] | tuple[str, ...] = DEFAULT_BUNDLE_KINDS,
+) -> dict[str, dict[str, Any]]:
+    provider_key = configured_provider_name(provider_name)
+    if provider_key == AUTO_PROVIDER:
+        return decide_bundle_with_policy(payload, kinds=kinds)
+    provider = get_provider(provider_key)
+    try:
+        return _decide_bundle(provider, payload, kinds)
+    except Exception as exc:
+        return {kind: _rules_fallback(kind, payload, f"{provider.name}: {exc}") for kind in kinds}
+
+
+def decide_bundle_with_policy(
+    payload: dict[str, Any],
+    policy: str | None = None,
+    kinds: list[str] | tuple[str, ...] = DEFAULT_BUNDLE_KINDS,
+) -> dict[str, dict[str, Any]]:
+    errors: list[str] = []
+    order = provider_order(policy)
+    for name in order:
+        provider = get_provider(name)
+        try:
+            results = _decide_bundle(provider, payload, kinds)
+            if errors:
+                for result in results.values():
+                    result["fallback"] = name == "rules"
+                    result["fallback_reason"] = "; ".join(errors)
+                    result["attempted_providers"] = order
+            return results
+        except Exception as exc:
+            errors.append(f"{provider.name}: {exc}")
+    return {kind: _rules_fallback(kind, payload, "; ".join(errors) or "no policy provider returned a decision") for kind in kinds}
+
+
+def _decide_bundle(provider: Any, payload: dict[str, Any], kinds: list[str] | tuple[str, ...]) -> dict[str, dict[str, Any]]:
+    if hasattr(provider, "decide_bundle"):
+        results = provider.decide_bundle(payload, list(kinds))
+    else:
+        results = {kind: provider.decide(kind, payload) for kind in kinds}
+    for kind, result in list(results.items()):
+        results[kind] = apply_rules_guardrail(kind, result, payload)
+    return results
 
 
 def _rules_fallback(kind: str, payload: dict[str, Any], reason: str) -> dict[str, Any]:

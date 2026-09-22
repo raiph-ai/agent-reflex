@@ -1,6 +1,6 @@
 import unittest
 
-from agent_reflex.providers.cactus import _extract_tool_arguments, _merge_decision
+from agent_reflex.providers.cactus import _extract_tool_arguments, _merge_decision, _preflight_tool_definition
 
 
 class CactusProviderTests(unittest.TestCase):
@@ -85,6 +85,14 @@ class CactusProviderTests(unittest.TestCase):
         raw = {"toolsets": "production, browser, external"}
         merged = _merge_decision("skill", defaults, raw)
         self.assertEqual(merged["toolsets"], ["browser"])
+
+    def test_preflight_tool_definition_bundles_kinds(self):
+        tool = _preflight_tool_definition("preflight_decision", ["route", "risk", "skill"])
+        props = tool["parameters"]["properties"]
+        self.assertIn("route", props)
+        self.assertIn("risk", props)
+        self.assertIn("skill", props)
+        self.assertIn("risk_level", props["risk"]["properties"])
 
 
 if __name__ == "__main__":

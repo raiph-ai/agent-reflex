@@ -38,6 +38,7 @@ class HermesAutoTests(unittest.TestCase):
                 self.assertEqual(configured_preflight_kinds(), ["risk", "skill"])
                 result = preflight({"task": "publish the homepage to production"})
         self.assertFalse(result["skipped"])
+        self.assertTrue(result["bundled"])
         self.assertEqual(result["kinds"], ["risk", "skill"])
         self.assertEqual(result["decisions"]["risk"]["provider"], "rules")
         self.assertIn("skills", result["decisions"]["skill"])
