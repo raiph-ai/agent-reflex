@@ -20,7 +20,10 @@ class AgentReflexWebHandler(BaseHTTPRequestHandler):
         if self.path.startswith("/health"):
             self._json({"ok": True, "config_path": str(config_path())})
             return
-        self._html(render_page(load_config()))
+        if self.path == "/" or self.path.startswith("/?"):
+            self._html(render_page(load_config()))
+            return
+        self.send_error(404, "Not found")
 
     def do_POST(self) -> None:  # noqa: N802
         length = int(self.headers.get("Content-Length", "0"))
