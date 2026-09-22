@@ -12,6 +12,8 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "AGENT_REFLEX_PROVIDER": "rules",
     "AGENT_REFLEX_PROVIDER_POLICY": "auto",
     "AGENT_REFLEX_PROVIDER_ORDER": "cactus,jev,openai-compatible,rules",
+    "AGENT_REFLEX_HERMES_AUTO_ENABLED": "false",
+    "AGENT_REFLEX_HERMES_AUTO_KINDS": "route,risk,skill",
     "AGENT_REFLEX_CACTUS_URL": "http://127.0.0.1:8088/v1",
     "AGENT_REFLEX_CACTUS_MODEL": "needle-cq4",
     "AGENT_REFLEX_OPENAI_BASE_URL": "http://127.0.0.1:8088/v1",
@@ -72,6 +74,13 @@ def get_setting(name: str, default: str | None = None) -> str | None:
     if configured in (None, ""):
         return default
     return str(configured)
+
+
+def get_bool_setting(name: str, default: bool = False) -> bool:
+    value = get_setting(name)
+    if value in (None, ""):
+        return default
+    return str(value).strip().lower() in {"1", "true", "yes", "on", "enabled"}
 
 
 def masked_value(name: str, value: Any) -> str:

@@ -32,6 +32,8 @@ class AgentReflexWebHandler(BaseHTTPRequestHandler):
         if self.path.startswith("/save"):
             current = load_config()
             values = dict(current)
+            if "AGENT_REFLEX_HERMES_AUTO_ENABLED" not in form:
+                values["AGENT_REFLEX_HERMES_AUTO_ENABLED"] = "false"
             for key in CONFIG_KEYS:
                 if key not in form:
                     continue
@@ -49,7 +51,12 @@ class AgentReflexWebHandler(BaseHTTPRequestHandler):
             task = form.get("task", "Publish the homepage update to production and verify it.").strip()
             kind = form.get("kind", "risk").strip() or "risk"
             provider = form.get("provider", "auto").strip() or "auto"
-            result = decide_with_provider(kind, {"task": task}, provider)
+            if kind == "preflight":
+                from .hermes.auto import preflight
+
+                result = preflight({"task": task}, provider, force=True)
+            else:
+                result = decide_with_provider(kind, {"task": task}, provider)
             self._html(render_page(load_config(), notice="Test decision complete", result=result))
             return
         self.send_error(404, "Not found")
@@ -98,7 +105,7 @@ def render_page(config: dict[str, object], notice: str | None = None, result: di
     <header>
       <p class="eyebrow">Local control panel</p>
       <h1>Agent Reflex Configuration</h1>
-      <p class="lead">Configure provider policy, local Cactus, Jev/TypeSafe, and OpenAI-compatible endpoints without hand-editing environment variables.</p>
+      <p class="lead">Configure provider policy, automatic Hermes preflight, local Cactus, Jev/TypeSafe, and OpenAI-compatible endpoints without hand-editing environment variables.</p>
       <p class="path">Config file: <code>{html.escape(str(config_path()))}</code></p>
       {notice_html}
     </header>
@@ -119,7 +126,7 @@ def render_page(config: dict[str, object], notice: str | None = None, result: di
       <h2>Test a decision</h2>
       <label>Decision kind
         <select name="kind">
-          <option>risk</option><option>route</option><option>skill</option><option>memory</option><option>validate</option>
+          <option>preflight</option><option>risk</option><option>route</option><option>skill</option><option>memory</option><option>validate</option>
         </select>
       </label>
       <label>Provider
@@ -140,6 +147,12 @@ def render_page(config: dict[str, object], notice: str | None = None, result: di
 
 
 def render_field(key: str, value: object) -> str:
+    if key == "AGENT_REFLEX_HERMES_AUTO_ENABLED":
+        checked = " checked" if str(value).strip().lower() in {"1", "true", "yes", "on", "enabled"} else ""
+        return f"""<label class="checkbox"><span>{html.escape(key)}</span>
+      <input name="{html.escape(key)}" type="checkbox" value="true"{checked}>
+      <small>When enabled, Hermes sessions that load the Agent Reflex skill should run <code>agent-reflex preflight</code> before risky or routed work.</small>
+    </label>"""
     display = masked_value(key, value)
     input_type = "password" if key in SECRET_KEYS else "text"
     placeholder = "leave blank to keep existing secret" if key in SECRET_KEYS and value else ""
@@ -164,6 +177,10 @@ article { display:grid; gap:.35rem; }
 .panel { margin-top:1rem; }
 label { display:grid; gap:.35rem; margin: .85rem 0; color: var(--muted); font-weight:700; }
 input, select, textarea { width:100%; border:1px solid var(--line); border-radius:.8rem; background:#070910; color:var(--ink); padding:.8rem; font:inherit; }
+.checkbox { grid-template-columns: auto 1fr; align-items:center; background:#101420; border:1px solid var(--line); border-radius:.9rem; padding:.8rem; }
+.checkbox input { width:auto; transform: scale(1.2); }
+.checkbox span, .checkbox small { grid-column: 2; }
+.checkbox small { color:var(--muted); font-weight:500; }
 textarea { min-height:7rem; }
 button { background:var(--red); border:0; border-radius:999px; color:white; cursor:pointer; font-weight:800; padding:.8rem 1.15rem; }
 pre { background:#070910; border:1px solid var(--line); border-radius:.9rem; overflow-x:auto; padding:1rem; }

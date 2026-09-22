@@ -16,6 +16,16 @@ Agent Reflex adds typed decision hooks to Hermes without replacing Hermes judgme
 - Deciding whether context belongs in memory, a skill, session history, or nowhere.
 - Validating whether final output satisfies the user request before replying.
 
+## Automatic Hermes mode
+
+If `AGENT_REFLEX_HERMES_AUTO_ENABLED=true`, run a read-only preflight at the start of the session/task before risky actions or tool-heavy work:
+
+```bash
+agent-reflex preflight --input task.json
+```
+
+Use the returned `route`, `risk`, and `skill` decisions as guidance for which skills/tools to load, whether approval is required, and what must be verified. This preflight is advisory and must never execute the user action by itself.
+
 ## Primary path
 
 Write the current task context to a small JSON file, then run one of:

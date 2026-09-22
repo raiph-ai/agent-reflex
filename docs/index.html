@@ -93,7 +93,7 @@ agent-reflex validate --provider openai-compatible --input result.json</code></p
 
     <section class="panel">
       <h2>Local web UI</h2>
-      <p>Configure provider policy, Cactus, Jev, and OpenAI-compatible endpoints from a local browser page.</p>
+      <p>Configure provider policy, automatic Hermes preflight, Cactus, Jev, and OpenAI-compatible endpoints from a local browser page.</p>
       <pre><code>agent-reflex-web --host 127.0.0.1 --port 8765
 open http://127.0.0.1:8765</code></pre>
       <p><a href="web-ui.md">Read web UI docs</a></p>
@@ -106,6 +106,14 @@ open http://127.0.0.1:8765</code></pre>
 export AGENT_REFLEX_PROVIDER_ORDER="cactus,jev,openai-compatible,rules"
 agent-reflex risk --input examples/risk-production-write.json</code></pre>
       <p><a href="providers.md">Read provider policy docs</a></p>
+    </section>
+
+    <section class="panel">
+      <h2>Automatic Hermes preflight</h2>
+      <p>Enable advisory automatic mode to have Hermes run route/risk/skill guidance before normal work when the Agent Reflex skill is loaded.</p>
+      <pre><code>export AGENT_REFLEX_HERMES_AUTO_ENABLED=true
+agent-reflex preflight --input task.json</code></pre>
+      <p><a href="hermes.md">Read Hermes integration docs</a></p>
     </section>
 
     <section class="panel">

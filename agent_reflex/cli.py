@@ -5,6 +5,7 @@ import json
 import sys
 from pathlib import Path
 
+from .hermes.auto import preflight
 from .providers import decide_with_provider
 from .schema import KINDS, validate_result
 
@@ -18,6 +19,11 @@ def main(argv: list[str] | None = None) -> int:
         p.add_argument("--input", "-i", required=True, help="Path to JSON input, or '-' for stdin")
         p.add_argument("--provider", default=None, help="Decision provider: rules, auto, jev, cactus, openai-compatible")
 
+    pre = sub.add_parser("preflight", help="Run configured Hermes automatic preflight decisions")
+    pre.add_argument("--input", "-i", required=True, help="Path to JSON input, or '-' for stdin")
+    pre.add_argument("--provider", default=None, help="Decision provider: rules, auto, jev, cactus, openai-compatible")
+    pre.add_argument("--force", action="store_true", help="Run even when AGENT_REFLEX_HERMES_AUTO_ENABLED is false")
+
     check = sub.add_parser("check", help="Validate a decision result JSON file")
     check.add_argument("path")
 
@@ -25,6 +31,11 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "check":
         validate_result(_load_json(args.path))
         print(json.dumps({"ok": True}, indent=2))
+        return 0
+    if args.command == "preflight":
+        payload = _load_json(args.input)
+        result = preflight(payload, args.provider, force=args.force)
+        print(json.dumps(result, indent=2, sort_keys=True))
         return 0
     if args.command not in KINDS:
         parser.print_help()

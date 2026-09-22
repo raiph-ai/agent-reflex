@@ -63,6 +63,7 @@ agent-reflex memory --input examples/memory-preference.json
 agent-reflex skill --input examples/skill-website-task.json
 agent-reflex validate --input examples/output-validation.json
 agent-reflex route --input examples/route-message.json
+agent-reflex preflight --input examples/risk-production-write.json
 agent-reflex check result.json
 agent-reflex-web --host 127.0.0.1 --port 8765
 python examples/hermes_poc.py
@@ -78,7 +79,7 @@ Agent Reflex includes a local-only configuration UI:
 agent-reflex-web --host 127.0.0.1 --port 8765
 ```
 
-Open `http://127.0.0.1:8765` to edit provider policy, Cactus/Jev/OpenAI-compatible settings, and run a test decision. The UI writes `~/.agent-reflex/config.json`; environment variables still override config values. See [`docs/web-ui.md`](docs/web-ui.md).
+Open `http://127.0.0.1:8765` to edit provider policy, automatic Hermes preflight, Cactus/Jev/OpenAI-compatible settings, and run a test decision. The UI writes `~/.agent-reflex/config.json`; environment variables still override config values. See [`docs/web-ui.md`](docs/web-ui.md).
 
 ## Example
 
@@ -104,6 +105,15 @@ The initial integration is a skill pack in `skills/`. A Hermes skill can call Ag
 ```text
 Before publishing or production writes, run `agent-reflex risk` with task context. If high/critical, ask for approval. After the action, run `agent-reflex validate`.
 ```
+
+Automatic mode is advisory and toggleable:
+
+```bash
+export AGENT_REFLEX_HERMES_AUTO_ENABLED=true
+agent-reflex preflight --input task.json
+```
+
+When the bundled skill is loaded, this tells Hermes to run a read-only `preflight` decision for route/risk/skill guidance before normal work. Hermes still enforces approvals, tool safety, and verification.
 
 Future integration can become a Hermes toolset/plugin:
 
