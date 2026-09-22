@@ -146,6 +146,58 @@ def render_page(config: dict[str, object], notice: str | None = None, result: di
 </html>"""
 
 
+SELECT_FIELDS: dict[str, tuple[tuple[str, str], ...]] = {
+    "AGENT_REFLEX_PROVIDER": (
+        ("auto", "Auto — use provider policy"),
+        ("rules", "Rules — deterministic local fallback"),
+        ("cactus", "Cactus — local reflex model"),
+        ("jev", "Jev / TypeSafe — typed cloud reflex"),
+        ("openai-compatible", "OpenAI-compatible endpoint"),
+    ),
+    "AGENT_REFLEX_PROVIDER_POLICY": (
+        ("auto", "Auto — local/private first, safe fallback"),
+        ("local-first", "Local first — Cactus before cloud"),
+        ("cloud-first", "Cloud first — Jev/OpenAI-compatible before local"),
+        ("rules-only", "Rules only — no model provider"),
+    ),
+    "AGENT_REFLEX_PROVIDER_ORDER": (
+        ("cactus,jev,openai-compatible,rules", "Cactus → Jev → OpenAI-compatible → Rules"),
+        ("rules,cactus,jev,openai-compatible", "Rules → Cactus → Jev → OpenAI-compatible"),
+        ("jev,cactus,openai-compatible,rules", "Jev → Cactus → OpenAI-compatible → Rules"),
+        ("openai-compatible,cactus,jev,rules", "OpenAI-compatible → Cactus → Jev → Rules"),
+        ("rules", "Rules only"),
+    ),
+    "AGENT_REFLEX_HERMES_AUTO_KINDS": (
+        ("route,risk,skill", "Recommended — route + risk + skill"),
+        ("risk", "Risk only"),
+        ("route,risk", "Route + risk"),
+        ("risk,skill", "Risk + skill"),
+        ("route,risk,skill,memory,validate", "All decision kinds"),
+    ),
+    "AGENT_REFLEX_CACTUS_MODEL": (
+        ("needle-cq4", "Needle CQ4 — local Cactus default"),
+        ("needle", "Needle"),
+    ),
+    "AGENT_REFLEX_OPENAI_MODEL": (
+        ("needle-cq4", "Needle CQ4 — local Cactus-compatible default"),
+        ("gpt-4o-mini", "gpt-4o-mini"),
+        ("gpt-4.1-mini", "gpt-4.1-mini"),
+    ),
+}
+
+HELP_TEXT: dict[str, str] = {
+    "AGENT_REFLEX_PROVIDER": "Default provider used by CLI commands when --provider is not passed.",
+    "AGENT_REFLEX_PROVIDER_POLICY": "How auto mode chooses among local, cloud, and rules providers.",
+    "AGENT_REFLEX_PROVIDER_ORDER": "Fallback chain for auto mode. Rules should stay in the chain as the safety net.",
+    "AGENT_REFLEX_HERMES_AUTO_KINDS": "Which decisions automatic Hermes preflight should request in one bundled call.",
+    "AGENT_REFLEX_CACTUS_URL": "Local Cactus / Needle OpenAI-compatible base URL.",
+    "AGENT_REFLEX_CACTUS_MODEL": "Local Cactus model name.",
+    "AGENT_REFLEX_OPENAI_BASE_URL": "Base URL for any OpenAI-compatible endpoint.",
+    "AGENT_REFLEX_OPENAI_MODEL": "Model name for the OpenAI-compatible provider.",
+    "AGENT_REFLEX_JEV_URL": "Jev / TypeSafe API URL when available.",
+}
+
+
 def render_field(key: str, value: object) -> str:
     if key == "AGENT_REFLEX_HERMES_AUTO_ENABLED":
         checked = " checked" if str(value).strip().lower() in {"1", "true", "yes", "on", "enabled"} else ""
@@ -154,10 +206,31 @@ def render_field(key: str, value: object) -> str:
       <small>When enabled, Hermes sessions that load the Agent Reflex skill should run <code>agent-reflex preflight</code> before risky or routed work.</small>
     </label>"""
     display = masked_value(key, value)
+    help_text = HELP_TEXT.get(key, "")
+    help_html = f"\n      <small>{html.escape(help_text)}</small>" if help_text else ""
+    if key in SELECT_FIELDS:
+        return render_select_field(key, display, SELECT_FIELDS[key], help_html)
     input_type = "password" if key in SECRET_KEYS else "text"
     placeholder = "leave blank to keep existing secret" if key in SECRET_KEYS and value else ""
     return f"""<label>{html.escape(key)}
-      <input name="{html.escape(key)}" type="{input_type}" value="{html.escape(display if key not in SECRET_KEYS else '')}" placeholder="{html.escape(placeholder)}">
+      <input name="{html.escape(key)}" type="{input_type}" value="{html.escape(display if key not in SECRET_KEYS else '')}" placeholder="{html.escape(placeholder)}">{help_html}
+    </label>"""
+
+
+def render_select_field(key: str, value: object, options: tuple[tuple[str, str], ...], help_html: str = "") -> str:
+    current = str(value or "")
+    option_html: list[str] = []
+    known = False
+    for option_value, label in options:
+        selected = " selected" if current == option_value else ""
+        known = known or current == option_value
+        option_html.append(f'<option value="{html.escape(option_value)}"{selected}>{html.escape(label)}</option>')
+    if current and not known:
+        option_html.insert(0, f'<option value="{html.escape(current)}" selected>Current custom: {html.escape(current)}</option>')
+    return f"""<label>{html.escape(key)}
+      <select name="{html.escape(key)}">
+        {''.join(option_html)}
+      </select>{help_html}
     </label>"""
 
 

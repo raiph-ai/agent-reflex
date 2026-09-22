@@ -50,6 +50,17 @@ AGENT_REFLEX_OPENAI_API_KEY
 
 Environment variables still win over the config file. This lets CI, shells, and deployment environments override the local UI safely.
 
+The UI uses guided controls for the common values so users do not need to memorize provider names or comma-separated policy strings:
+
+- provider dropdown: `auto`, `rules`, `cactus`, `jev`, or `openai-compatible`;
+- provider policy dropdown: `auto`, `local-first`, `cloud-first`, or `rules-only`;
+- fallback-order presets;
+- automatic Hermes preflight toggle;
+- bundled preflight kind presets;
+- common Cactus/OpenAI-compatible model presets while preserving custom current values.
+
+Endpoint URLs and API keys remain text/password fields because those values are environment-specific.
+
 ## Recommended local values
 
 ```text
@@ -83,7 +94,3 @@ Example CLI equivalents:
 agent-reflex preflight --input examples/risk-production-write.json
 agent-reflex risk --provider auto --input examples/risk-production-write.json
 ```
-
-## Product note
-
-The local web UI is an MVP configuration surface. The commercial product should evolve this into a hosted/team control plane with policy management, approval workflows, provider benchmarking, audit trails, and observability.
