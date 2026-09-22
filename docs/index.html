@@ -16,7 +16,7 @@
     <section>
       <p class="eyebrow">Hermes Agent integration</p>
       <h1>Fast structured decision hooks for autonomous agents.</h1>
-      <p class="lead">Route, guard, and score agent actions before the big model thinks. Agent Reflex gives Hermes a typed decision layer without making it dependent on any one model or service.</p>
+      <p class="lead">Route, guard, and score agent actions before the big model thinks. Agent Reflex sends obvious decisions to instant rules, local/private decisions to low-cost reflex models like Cactus, and only escalates to full LLMs when the work actually needs them.</p>
       <div class="actions">
         <a class="button" href="#quickstart">Quickstart</a>
         <a class="button secondary" href="providers.md">Providers</a>
@@ -42,6 +42,35 @@
         <h2>Validate</h2>
         <p>Check whether the final output satisfies requirements before the agent declares success.</p>
       </article>
+    </section>
+
+    <section class="panel highlight">
+      <p class="eyebrow">Measured local benchmark</p>
+      <h2>Why burn a full reasoning turn on a traffic light?</h2>
+      <p>In a local benchmark for a production-publish risk decision, Agent Reflex avoided a main-model call and returned structured guidance dramatically faster.</p>
+      <div class="metrics">
+        <article>
+          <strong>~130 ms</strong>
+          <span>Built-in deterministic rules. Fastest path for obvious safety gates.</span>
+        </article>
+        <article>
+          <strong>~635 ms</strong>
+          <span>Local Cactus / Needle reflex model. Private, local, and roughly <b>44x faster</b> than the main model test.</span>
+        </article>
+        <article>
+          <strong>~1.48 sec</strong>
+          <span>Full route + risk + skill preflight through Cactus. Roughly <b>19x faster</b> than the main model test.</span>
+        </article>
+        <article>
+          <strong>~27.8 sec</strong>
+          <span>Main Hermes reasoning model doing the same small classification job.</span>
+        </article>
+      </div>
+      <pre><code>Obvious safety decision  → rules
+Local/private reflex     → Cactus
+Typed cloud reflex       → Jev / future providers
+Complex reasoning        → full LLM</code></pre>
+      <p class="muted">Benchmark context: local macOS test, Agent Reflex CLI, Cactus/Needle on <code>127.0.0.1:8088</code>, Hermes main-model comparison using the same risk-classification task. Exact timings vary by machine and provider; the architectural point is stable: do not spend premium reasoning on repeatable traffic-light decisions.</p>
     </section>
 
     <section id="quickstart" class="panel">

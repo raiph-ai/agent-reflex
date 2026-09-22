@@ -15,6 +15,30 @@ Most agents use the large reasoning model for every decision. Agent Reflex separ
 
 The differentiator is not one model. The differentiator is the stable decision contract plus fail-safe provider policy.
 
+## Why this matters: measured reflex savings
+
+A simple production-publish risk classification should not require a premium reasoning turn. In a local benchmark using Agent Reflex with Cactus/Needle and Hermes, the same small decision class looked like this:
+
+| Path | Example use | Measured latency |
+|---|---|---:|
+| Built-in `rules` | Obvious safety gates and deterministic policy | ~130 ms |
+| Local `cactus` | Private/local reflex decision | ~635 ms |
+| Cactus full preflight | `route + risk + skill` bundle | ~1.48 sec |
+| Main Hermes LLM | Full reasoning model doing the same classification | ~27.8 sec |
+
+That makes a single Cactus risk decision roughly **44x faster** than asking the main model, and a full Cactus preflight roughly **19x faster** than a main-model classification turn. Rules are still fastest and should handle obvious cases first.
+
+Recommended escalation path:
+
+```text
+Obvious safety decision  → rules
+Local/private reflex     → Cactus
+Typed cloud reflex       → Jev / future providers
+Complex reasoning        → full LLM
+```
+
+The commercial story is not simply speed. It is using the right tier for the right decision so agents become cheaper, safer, more predictable, and easier to govern.
+
 ## What sets it apart
 
 ### 1. Provider-neutral by design
