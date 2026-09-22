@@ -107,7 +107,7 @@ export AGENT_REFLEX_CACTUS_MODEL="needle-cq4"
 
 `AGENT_REFLEX_CACTUS_API_KEY` is optional for a local server; Agent Reflex supplies a local placeholder when absent.
 
-Current behavior: calls the OpenAI-compatible endpoint and falls back to `rules` if Cactus returns empty/non-JSON content or is unavailable. A future Cactus-specific tool-call adapter should parse Needle's native tool-call responses.
+Current behavior: uses a Cactus-specific tool-call adapter. Needle often returns empty plain-text content, so Agent Reflex forces an OpenAI-style function call, parses `tool_calls`, then repairs/fills the result with deterministic `rules` defaults. The result can report `provider: "cactus"` and `fallback: false` while rules still act as safety guardrails for missing or malformed fields.
 
 ### `openai-compatible`
 
