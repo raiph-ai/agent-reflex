@@ -70,16 +70,17 @@ The UI does not display existing secret values back into the browser form. Leave
 
 ## Test decisions
 
-The UI can run a sample decision from the browser. This is useful for confirming:
+The UI can run a sample decision from the browser. Select `preflight` to test the automatic Hermes route/risk/skill bundle, or select an individual decision kind. This is useful for confirming:
 
 - provider order;
 - fallback behavior;
 - Cactus/Jev availability;
 - deterministic rules output.
 
-Example CLI equivalent:
+Example CLI equivalents:
 
 ```bash
+agent-reflex preflight --input examples/risk-production-write.json
 agent-reflex risk --provider auto --input examples/risk-production-write.json
 ```
 
