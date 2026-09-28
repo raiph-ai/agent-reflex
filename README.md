@@ -55,9 +55,19 @@ agent-reflex-hermes-install --dry-run
 agent-reflex-hermes-install --target "$HERMES_HOME/skills"
 ```
 
-If a skill already exists, the installer refuses to overwrite it unless you pass `--force`. With `--force`, it creates `agent-reflex.bak` first. The installer stages files in a temporary directory and only moves the completed skill into place, so a failed install should not leave Hermes half-modified.
+Then restart or `/reset` Hermes so the skill index reloads.
 
-After install, restart or `/reset` Hermes so the skill index reloads.
+### Last install step: make Agent Reflex the default first hop
+
+After the skill is installed, tell your agent this once:
+
+```text
+Use the agent-reflex skill as the default first routing step for every new request. Before normal reasoning or tool use, create a small task JSON payload and run `agent-reflex preflight --input task.json`. Follow `routing_plan.next_action`: continue fast-path for high-confidence low-risk tasks, load recommended skills/toolsets when suggested, and escalate to the full agent/model for low confidence, approvals, risky actions, or work that needs deeper judgment. If Agent Reflex fails, continue safely with the manual fallback checklist.
+```
+
+That instruction is the piece that makes the speed increase visible: Agent Reflex handles the quick route/risk/skill traffic-light decision first, then only escalates when needed.
+
+If a skill already exists, the installer refuses to overwrite it unless you pass `--force`. With `--force`, it creates `agent-reflex.bak` first. The installer stages files in a temporary directory and only moves the completed skill into place, so a failed install should not leave Hermes half-modified.
 
 ### Fallback behavior
 
@@ -116,20 +126,20 @@ agent-reflex risk --input examples/risk-production-write.json
 
 ## Hermes integration idea
 
-The initial integration is a skill pack in `skills/`. A Hermes skill can call Agent Reflex before risky actions or after completion:
+The initial integration is a skill pack in `skills/`. A Hermes skill can call Agent Reflex before normal reasoning/tool use, before risky actions, or after completion:
 
 ```text
 Before publishing or production writes, run `agent-reflex risk` with task context. If high/critical, ask for approval. After the action, run `agent-reflex validate`.
 ```
 
-Automatic mode is advisory and toggleable:
+Automatic mode is advisory and enabled by default for the installed skill:
 
 ```bash
 export AGENT_REFLEX_HERMES_AUTO_ENABLED=true
 agent-reflex preflight --input task.json
 ```
 
-When the bundled skill is loaded, this tells Hermes to run a read-only `preflight` decision for route/risk/skill guidance before normal work. Hermes still enforces approvals, tool safety, and verification.
+When the bundled skill is loaded, this tells Hermes to run a read-only `preflight` decision for route/risk/skill guidance before normal reasoning or tool use. Hermes still enforces approvals, tool safety, and verification.
 
 Future integration can become a Hermes toolset/plugin:
 
@@ -156,7 +166,7 @@ Recommended provider-neutral mode:
 ```bash
 export AGENT_REFLEX_PROVIDER=auto
 export AGENT_REFLEX_PROVIDER_POLICY=auto
-export AGENT_REFLEX_PROVIDER_ORDER="cactus,jev,openai-compatible,rules"
+export AGENT_REFLEX_PROVIDER_ORDER="rules,cactus,jev,openai-compatible"
 agent-reflex risk --input examples/risk-production-write.json
 ```
 

@@ -4,7 +4,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from agent_reflex.config import get_bool_setting, save_config
-from agent_reflex.hermes.auto import automatic_enabled, configured_preflight_kinds, preflight
+from agent_reflex.hermes.auto import automatic_enabled, configured_preflight_kinds, preflight, routing_plan
 
 
 class HermesAutoTests(unittest.TestCase):
@@ -41,6 +41,8 @@ class HermesAutoTests(unittest.TestCase):
         self.assertTrue(result["bundled"])
         self.assertEqual(result["kinds"], ["risk", "skill"])
         self.assertEqual(result["decisions"]["risk"]["provider"], "rules")
+        self.assertIn("routing_plan", result)
+        self.assertEqual(result["routing_plan"]["next_action"], "escalate_to_full_agent_for_approval_and_execution")
         self.assertIn("skills", result["decisions"]["skill"])
 
     def test_preflight_force_runs_when_disabled(self):
@@ -51,7 +53,28 @@ class HermesAutoTests(unittest.TestCase):
                 result = preflight({"task": "route this website task"}, force=True)
         self.assertFalse(result["skipped"])
         self.assertFalse(result["enabled"])
+        self.assertIn("routing_plan", result)
         self.assertIn("risk", result["decisions"])
+
+    def test_routing_plan_continues_fast_path_for_high_confidence_low_risk(self):
+        decisions = {
+            "route": {"confidence": 0.92, "recommended_agent": "raiph"},
+            "risk": {"confidence": 0.91, "requires_human_approval": False, "requires_verification": False},
+            "skill": {"confidence": 0.95, "skills": ["none"], "toolsets": []},
+        }
+        plan = routing_plan(decisions)
+        self.assertTrue(plan["default_first"])
+        self.assertEqual(plan["next_action"], "continue_fast_path")
+
+    def test_routing_plan_escalates_low_confidence(self):
+        decisions = {
+            "route": {"confidence": 0.55, "recommended_agent": "raiph"},
+            "risk": {"confidence": 0.91, "risk_level": "medium", "requires_human_approval": False, "requires_verification": True},
+            "skill": {"confidence": 0.95, "skills": ["none"], "toolsets": []},
+        }
+        plan = routing_plan(decisions)
+        self.assertEqual(plan["next_action"], "escalate_to_full_agent_for_judgment")
+        self.assertEqual(plan["low_confidence_decisions"], ["route"])
 
 
 if __name__ == "__main__":

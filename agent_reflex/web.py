@@ -161,8 +161,8 @@ SELECT_FIELDS: dict[str, tuple[tuple[str, str], ...]] = {
         ("rules-only", "Rules only — no model provider"),
     ),
     "AGENT_REFLEX_PROVIDER_ORDER": (
-        ("cactus,jev,openai-compatible,rules", "Cactus → Jev → OpenAI-compatible → Rules"),
-        ("rules,cactus,jev,openai-compatible", "Rules → Cactus → Jev → OpenAI-compatible"),
+        ("rules,cactus,jev,openai-compatible", "Recommended default — Rules → Cactus → Jev → OpenAI-compatible"),
+        ("cactus,jev,openai-compatible,rules", "Model-first — Cactus → Jev → OpenAI-compatible → Rules"),
         ("jev,cactus,openai-compatible,rules", "Jev → Cactus → OpenAI-compatible → Rules"),
         ("openai-compatible,cactus,jev,rules", "OpenAI-compatible → Cactus → Jev → Rules"),
         ("rules", "Rules only"),
@@ -203,7 +203,7 @@ def render_field(key: str, value: object) -> str:
         checked = " checked" if str(value).strip().lower() in {"1", "true", "yes", "on", "enabled"} else ""
         return f"""<label class="checkbox"><span>{html.escape(key)}</span>
       <input name="{html.escape(key)}" type="checkbox" value="true"{checked}>
-      <small>When enabled, Hermes sessions that load the Agent Reflex skill should run <code>agent-reflex preflight</code> before risky or routed work.</small>
+      <small>When enabled, Hermes sessions that load the Agent Reflex skill should run <code>agent-reflex preflight</code> as the default first hop before normal reasoning or tool use.</small>
     </label>"""
     display = masked_value(key, value)
     help_text = HELP_TEXT.get(key, "")

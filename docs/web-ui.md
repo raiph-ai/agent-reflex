@@ -66,7 +66,7 @@ Endpoint URLs and API keys remain text/password fields because those values are 
 ```text
 AGENT_REFLEX_PROVIDER=auto
 AGENT_REFLEX_PROVIDER_POLICY=auto
-AGENT_REFLEX_PROVIDER_ORDER=cactus,jev,openai-compatible,rules
+AGENT_REFLEX_PROVIDER_ORDER=rules,cactus,jev,openai-compatible
 AGENT_REFLEX_HERMES_AUTO_ENABLED=true
 AGENT_REFLEX_HERMES_AUTO_KINDS=route,risk,skill
 AGENT_REFLEX_CACTUS_URL=http://127.0.0.1:8088/v1

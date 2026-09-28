@@ -16,9 +16,28 @@ Agent Reflex adds typed decision hooks to Hermes without replacing Hermes judgme
 - Deciding whether context belongs in memory, a skill, session history, or nowhere.
 - Validating whether final output satisfies the user request before replying.
 
+## Default-first routing mode
+
+When this skill is loaded, treat Agent Reflex as the first routing hop for every new user request before normal reasoning or tool use.
+
+1. Create a small task payload with the user's request, relevant source/channel context, and any known project hints.
+2. Run:
+
+```bash
+agent-reflex preflight --input task.json
+```
+
+3. Use `routing_plan.next_action`, `route`, `risk`, and `skill` decisions to choose the next step:
+   - `continue_fast_path`: answer or continue with the lightweight path when confidence is high and risk is low.
+   - `load_recommended_skills_then_continue`: load the recommended skills/toolsets before doing the work.
+   - `escalate_to_full_agent_for_judgment`: use the full agent/model because confidence is low or the request needs judgment.
+   - `escalate_to_full_agent_for_approval_and_execution`: use the full agent/model and require approval/verification gates.
+
+Agent Reflex is the default first pass; Hermes/the host agent remains the executor and final authority.
+
 ## Automatic Hermes mode
 
-If `AGENT_REFLEX_HERMES_AUTO_ENABLED=true`, run a read-only preflight at the start of the session/task before risky actions or tool-heavy work:
+`AGENT_REFLEX_HERMES_AUTO_ENABLED` defaults to `true`. Keep it enabled to run a read-only preflight at the start of each session/task:
 
 ```bash
 agent-reflex preflight --input task.json

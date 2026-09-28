@@ -9,10 +9,10 @@ CONFIG_ENV = "AGENT_REFLEX_CONFIG"
 DEFAULT_CONFIG_PATH = Path.home() / ".agent-reflex" / "config.json"
 
 DEFAULT_CONFIG: dict[str, Any] = {
-    "AGENT_REFLEX_PROVIDER": "rules",
+    "AGENT_REFLEX_PROVIDER": "auto",
     "AGENT_REFLEX_PROVIDER_POLICY": "auto",
-    "AGENT_REFLEX_PROVIDER_ORDER": "cactus,jev,openai-compatible,rules",
-    "AGENT_REFLEX_HERMES_AUTO_ENABLED": "false",
+    "AGENT_REFLEX_PROVIDER_ORDER": "rules,cactus,jev,openai-compatible",
+    "AGENT_REFLEX_HERMES_AUTO_ENABLED": "true",
     "AGENT_REFLEX_HERMES_AUTO_KINDS": "route,risk,skill",
     "AGENT_REFLEX_CACTUS_URL": "http://127.0.0.1:8088/v1",
     "AGENT_REFLEX_CACTUS_MODEL": "needle-cq4",

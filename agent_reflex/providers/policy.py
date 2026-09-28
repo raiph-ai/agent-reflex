@@ -7,7 +7,7 @@ from agent_reflex.config import get_setting
 from .mock import MockProvider
 
 AUTO_PROVIDER = "auto"
-DEFAULT_AUTO_ORDER = ("cactus", "jev", "openai-compatible", "rules")
+DEFAULT_AUTO_ORDER = ("rules", "cactus", "jev", "openai-compatible")
 RISK_RANK = {"low": 0, "medium": 1, "high": 2, "critical": 3}
 
 
@@ -20,7 +20,7 @@ def provider_order(policy: str | None = None) -> list[str]:
     """Return ordered providers for auto/policy mode.
 
     Environment override:
-      AGENT_REFLEX_PROVIDER_ORDER="cactus,jev,openai-compatible,rules"
+      AGENT_REFLEX_PROVIDER_ORDER="rules,cactus,jev,openai-compatible"
     """
     raw = get_setting("AGENT_REFLEX_PROVIDER_ORDER")
     if raw:

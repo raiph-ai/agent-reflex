@@ -21,14 +21,14 @@ Agent Reflex should not force users to choose Jev **or** Cactus as an all-or-not
 ```bash
 export AGENT_REFLEX_PROVIDER=auto
 export AGENT_REFLEX_PROVIDER_POLICY=auto
-export AGENT_REFLEX_PROVIDER_ORDER="cactus,jev,openai-compatible,rules"
+export AGENT_REFLEX_PROVIDER_ORDER="rules,cactus,jev,openai-compatible"
 ```
 
-In policy mode, Agent Reflex tries providers in order and falls back safely to `rules` when a provider is unavailable, unconfigured, times out, or returns invalid output.
+In policy mode, Agent Reflex tries providers in order and falls back safely to `rules` when a provider is unavailable, unconfigured, times out, or returns invalid output. The recommended public-install default is rules-first because it gives every agent an immediate, dependency-free first routing hop. Users with a running local Needle/Cactus server can switch to model-first order in the web UI.
 
 Supported policy names:
 
-- `auto` — local/provider-neutral default: `cactus, jev, openai-compatible, rules`
+- `auto` — dependency-free public-install default: `rules, cactus, jev, openai-compatible`
 - `local-first` — prefer local/private decisions: `cactus, rules`
 - `cloud-first` — prefer typed/cloud providers: `jev, openai-compatible, rules`
 - `rules-only` — deterministic only

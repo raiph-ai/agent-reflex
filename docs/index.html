@@ -107,6 +107,9 @@ agent-reflex risk --input examples/risk-production-write.json</code></pre>
       <p>The bundled Hermes skill is designed to fail safe. If the CLI is absent, times out, or returns invalid JSON, Hermes continues with a manual fallback checklist instead of breaking.</p>
       <pre><code>agent-reflex-hermes-install --dry-run
 agent-reflex-hermes-install --target "$HERMES_HOME/skills"</code></pre>
+      <h3>Last step: make it the default first hop</h3>
+      <p>After install, tell your agent once to use Agent Reflex before normal reasoning or tool use:</p>
+      <pre><code>Use the agent-reflex skill as the default first routing step for every new request. Before normal reasoning or tool use, create a small task JSON payload and run `agent-reflex preflight --input task.json`. Follow `routing_plan.next_action`: continue fast-path for high-confidence low-risk tasks, load recommended skills/toolsets when suggested, and escalate to the full agent/model for low confidence, approvals, risky actions, or work that needs deeper judgment. If Agent Reflex fails, continue safely with the manual fallback checklist.</code></pre>
       <ul>
         <li>Dry-run support before writing files.</li>
         <li>No overwrite unless <code>--force</code> is passed.</li>
@@ -151,14 +154,14 @@ open http://127.0.0.1:8765</code></pre>
       <h2>Provider policy</h2>
       <p>Phase II adds <code>auto</code> mode: Agent Reflex can try Cactus, Jev, OpenAI-compatible providers, and deterministic rules in a configurable order. Rules remain the terminal fallback and risk guardrail.</p>
       <pre><code>export AGENT_REFLEX_PROVIDER=auto
-export AGENT_REFLEX_PROVIDER_ORDER="cactus,jev,openai-compatible,rules"
+export AGENT_REFLEX_PROVIDER_ORDER="rules,cactus,jev,openai-compatible"
 agent-reflex risk --input examples/risk-production-write.json</code></pre>
       <p><a href="providers.md">Read provider policy docs</a></p>
     </section>
 
     <section class="panel">
       <h2>Automatic Hermes preflight</h2>
-      <p>Enable advisory automatic mode to have Hermes run route/risk/skill guidance before normal work when the Agent Reflex skill is loaded.</p>
+      <p>Enable advisory automatic mode to have Hermes run route/risk/skill guidance as the default first hop before normal reasoning or tool use.</p>
       <pre><code>export AGENT_REFLEX_HERMES_AUTO_ENABLED=true
 agent-reflex preflight --input task.json</code></pre>
       <p><a href="hermes.md">Read Hermes integration docs</a></p>

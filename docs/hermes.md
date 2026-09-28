@@ -11,6 +11,30 @@ agent-reflex-hermes-install --target "$HERMES_HOME/skills"
 
 Then restart Hermes or run `/reset` so the skill index reloads.
 
+## Default-first routing
+
+To see the speed benefit, Agent Reflex must be the first routing hop, not just a tool the full model may call later.
+
+After installing the skill, tell your agent this once:
+
+```text
+Use the agent-reflex skill as the default first routing step for every new request. Before normal reasoning or tool use, create a small task JSON payload and run `agent-reflex preflight --input task.json`. Follow `routing_plan.next_action`: continue fast-path for high-confidence low-risk tasks, load recommended skills/toolsets when suggested, and escalate to the full agent/model for low confidence, approvals, risky actions, or work that needs deeper judgment. If Agent Reflex fails, continue safely with the manual fallback checklist.
+```
+
+Default-first flow:
+
+```text
+User request
+  ↓
+agent-reflex preflight: route + risk + skill
+  ↓
+routing_plan.next_action
+  ├─ continue_fast_path
+  ├─ load_recommended_skills_then_continue
+  ├─ escalate_to_full_agent_for_judgment
+  └─ escalate_to_full_agent_for_approval_and_execution
+```
+
 ## Use inside Hermes
 
 When the `agent-reflex` skill is loaded, Hermes can call the CLI before or after tool work:
@@ -36,7 +60,7 @@ AGENT_REFLEX_HERMES_AUTO_ENABLED=true
 AGENT_REFLEX_HERMES_AUTO_KINDS=route,risk,skill
 ```
 
-When enabled, the skill instructs Hermes to run a read-only preflight before risky actions or tool-heavy work. The result gives Hermes structured guidance for routing, risk, skill selection, approval, and verification. It does not execute actions by itself, and Hermes remains responsible for approvals and verification.
+When enabled, the skill instructs Hermes to run a read-only preflight before normal reasoning or tool use for each new request. The result gives Hermes structured guidance for routing, risk, skill selection, approval, and verification. It does not execute actions by itself, and Hermes remains responsible for approvals and verification.
 
 ## No-break fallback
 
