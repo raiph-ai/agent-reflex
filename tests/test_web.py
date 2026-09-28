@@ -8,7 +8,7 @@ class WebUiTests(unittest.TestCase):
         html = render_field("AGENT_REFLEX_PROVIDER", "auto")
         self.assertIn('<select name="AGENT_REFLEX_PROVIDER">', html)
         self.assertIn('value="auto" selected', html)
-        self.assertIn('Cactus — local reflex model', html)
+        self.assertIn('Needle/Cactus — local reflex model', html)
 
     def test_policy_and_preflight_kinds_render_as_selects(self):
         html = render_page({

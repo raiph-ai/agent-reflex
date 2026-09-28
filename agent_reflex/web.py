@@ -105,15 +105,15 @@ def render_page(config: dict[str, object], notice: str | None = None, result: di
     <header>
       <p class="eyebrow">Local control panel</p>
       <h1>Agent Reflex Configuration</h1>
-      <p class="lead">Configure provider policy, automatic Hermes preflight, local Cactus, Jev/TypeSafe, and OpenAI-compatible endpoints without hand-editing environment variables.</p>
+      <p class="lead">Configure provider policy, automatic Hermes preflight, local Needle/Cactus, Jev/TypeSafe, and OpenAI-compatible/full-LLM endpoints without hand-editing environment variables.</p>
       <p class="path">Config file: <code>{html.escape(str(config_path()))}</code></p>
       {notice_html}
     </header>
 
     <section class="grid">
-      <article><strong>Provider-neutral</strong><span>Use rules, Cactus, Jev, OpenAI-compatible APIs, or auto policy.</span></article>
+      <article><strong>Provider-neutral</strong><span>Use rules, Needle/Cactus, Jev, OpenAI-compatible APIs, or auto policy.</span></article>
       <article><strong>Fail-safe</strong><span>Rules remain the fallback and risk guardrail.</span></article>
-      <article><strong>Local-first ready</strong><span>Cactus can run locally when available.</span></article>
+      <article><strong>Local reflex ready</strong><span>Needle/Cactus can run locally when available.</span></article>
     </section>
 
     <form method="post" action="/save" class="panel">
@@ -150,21 +150,21 @@ SELECT_FIELDS: dict[str, tuple[tuple[str, str], ...]] = {
     "AGENT_REFLEX_PROVIDER": (
         ("auto", "Auto — use provider policy"),
         ("rules", "Rules — deterministic local fallback"),
-        ("cactus", "Cactus — local reflex model"),
+        ("cactus", "Needle/Cactus — local reflex model"),
         ("jev", "Jev / TypeSafe — typed cloud reflex"),
-        ("openai-compatible", "OpenAI-compatible endpoint"),
+        ("openai-compatible", "OpenAI-compatible — LLM fallback endpoint"),
     ),
     "AGENT_REFLEX_PROVIDER_POLICY": (
         ("auto", "Auto — local/private first, safe fallback"),
-        ("local-first", "Local first — Cactus before cloud"),
+        ("local-first", "Local first — Needle/Cactus before cloud"),
         ("cloud-first", "Cloud first — Jev/OpenAI-compatible before local"),
         ("rules-only", "Rules only — no model provider"),
     ),
     "AGENT_REFLEX_PROVIDER_ORDER": (
-        ("rules,cactus,jev,openai-compatible", "Recommended default — Rules → Cactus → Jev → OpenAI-compatible"),
-        ("cactus,jev,openai-compatible,rules", "Model-first — Cactus → Jev → OpenAI-compatible → Rules"),
-        ("jev,cactus,openai-compatible,rules", "Jev → Cactus → OpenAI-compatible → Rules"),
-        ("openai-compatible,cactus,jev,rules", "OpenAI-compatible → Cactus → Jev → Rules"),
+        ("rules,cactus,jev,openai-compatible", "Recommended — Rules → Needle/Cactus → Jev → LLM"),
+        ("cactus,jev,openai-compatible,rules", "Model-first — Needle/Cactus → Jev → LLM → Rules"),
+        ("jev,cactus,openai-compatible,rules", "Jev → Needle/Cactus → LLM → Rules"),
+        ("openai-compatible,cactus,jev,rules", "LLM → Needle/Cactus → Jev → Rules"),
         ("rules", "Rules only"),
     ),
     "AGENT_REFLEX_HERMES_AUTO_KINDS": (
@@ -188,11 +188,11 @@ SELECT_FIELDS: dict[str, tuple[tuple[str, str], ...]] = {
 HELP_TEXT: dict[str, str] = {
     "AGENT_REFLEX_PROVIDER": "Default provider used by CLI commands when --provider is not passed.",
     "AGENT_REFLEX_PROVIDER_POLICY": "How auto mode chooses among local, cloud, and rules providers.",
-    "AGENT_REFLEX_PROVIDER_ORDER": "Fallback chain for auto mode. Rules should stay in the chain as the safety net.",
+    "AGENT_REFLEX_PROVIDER_ORDER": "Fallback chain for auto mode. Recommended route: rules → Needle/Cactus → Jev → LLM.",
     "AGENT_REFLEX_HERMES_AUTO_KINDS": "Which decisions automatic Hermes preflight should request in one bundled call.",
-    "AGENT_REFLEX_CACTUS_URL": "Local Cactus / Needle OpenAI-compatible base URL.",
-    "AGENT_REFLEX_CACTUS_MODEL": "Local Cactus model name.",
-    "AGENT_REFLEX_OPENAI_BASE_URL": "Base URL for any OpenAI-compatible endpoint.",
+    "AGENT_REFLEX_CACTUS_URL": "Local Needle/Cactus OpenAI-compatible base URL.",
+    "AGENT_REFLEX_CACTUS_MODEL": "Local Needle/Cactus model name.",
+    "AGENT_REFLEX_OPENAI_BASE_URL": "Base URL for an OpenAI-compatible LLM fallback endpoint.",
     "AGENT_REFLEX_OPENAI_MODEL": "Model name for the OpenAI-compatible provider.",
     "AGENT_REFLEX_JEV_URL": "Jev / TypeSafe API URL when available.",
 }

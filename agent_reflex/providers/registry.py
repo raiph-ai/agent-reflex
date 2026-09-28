@@ -9,6 +9,7 @@ from .policy import AUTO_PROVIDER, apply_rules_guardrail, configured_provider_na
 from .stub import UnconfiguredProvider
 
 DEFAULT_BUNDLE_KINDS = ("route", "risk", "skill")
+MIN_REFLEX_CONFIDENCE = 0.7
 
 PROVIDER_CLASSES = {
     "rules": MockProvider,
@@ -53,6 +54,9 @@ def decide_with_policy(kind: str, payload: dict[str, Any], policy: str | None = 
                 result["fallback"] = name == "rules"
                 result["fallback_reason"] = "; ".join(errors)
                 result["attempted_providers"] = provider_order(policy)
+            if name == "rules" and not _decision_is_confident(result):
+                errors.append(f"rules: confidence below {MIN_REFLEX_CONFIDENCE}")
+                continue
             return result
         except Exception as exc:
             errors.append(f"{provider.name}: {exc}")
@@ -91,6 +95,9 @@ def decide_bundle_with_policy(
                     result["fallback"] = name == "rules"
                     result["fallback_reason"] = "; ".join(errors)
                     result["attempted_providers"] = order
+            if name == "rules" and not _bundle_is_confident(results):
+                errors.append(f"rules: one or more decisions below {MIN_REFLEX_CONFIDENCE}")
+                continue
             return results
         except Exception as exc:
             errors.append(f"{provider.name}: {exc}")
@@ -105,6 +112,14 @@ def _decide_bundle(provider: Any, payload: dict[str, Any], kinds: list[str] | tu
     for kind, result in list(results.items()):
         results[kind] = apply_rules_guardrail(kind, result, payload)
     return results
+
+
+def _decision_is_confident(result: dict[str, Any]) -> bool:
+    return float(result.get("confidence", 0) or 0) >= MIN_REFLEX_CONFIDENCE
+
+
+def _bundle_is_confident(results: dict[str, dict[str, Any]]) -> bool:
+    return all(_decision_is_confident(result) for result in results.values())
 
 
 def _rules_fallback(kind: str, payload: dict[str, Any], reason: str) -> dict[str, Any]:

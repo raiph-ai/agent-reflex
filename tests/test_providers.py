@@ -34,6 +34,21 @@ class ProviderTests(unittest.TestCase):
         self.assertEqual(result["provider"], "rules")
         self.assertTrue(result["fallback"])
 
+    def test_rules_low_confidence_falls_through_to_reflex_provider(self):
+        with patch.dict("os.environ", {"AGENT_REFLEX_PROVIDER_ORDER": "rules,jev"}, clear=False):
+            result = decide_with_provider("route", {"task": "hello"}, "auto")
+        self.assertEqual(result["provider"], "rules")
+        self.assertTrue(result["fallback"])
+        self.assertIn("rules: confidence below", result["fallback_reason"])
+        self.assertIn("jev:", result["fallback_reason"])
+
+    def test_rules_high_confidence_stops_before_reflex_provider(self):
+        with patch.dict("os.environ", {"AGENT_REFLEX_PROVIDER_ORDER": "rules,jev"}, clear=False):
+            result = decide_with_provider("risk", {"task": "publish to production"}, "auto")
+        self.assertEqual(result["provider"], "rules")
+        self.assertFalse(result["fallback"])
+        self.assertNotIn("fallback_reason", result)
+
 
 if __name__ == "__main__":
     unittest.main()

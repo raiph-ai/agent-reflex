@@ -16,7 +16,13 @@ Every provider returns JSON with these fields:
 
 ## Phase II: provider policy
 
-Agent Reflex should not force users to choose Jev **or** Cactus as an all-or-nothing decision. The recommended posture is a provider policy:
+Agent Reflex should not force users to choose Jev **or** Needle/Cactus as an all-or-nothing decision. The recommended route is:
+
+```text
+rules → Needle/Cactus or Jev → full LLM
+```
+
+The configurable provider policy behind that route is:
 
 ```bash
 export AGENT_REFLEX_PROVIDER=auto
@@ -24,11 +30,11 @@ export AGENT_REFLEX_PROVIDER_POLICY=auto
 export AGENT_REFLEX_PROVIDER_ORDER="rules,cactus,jev,openai-compatible"
 ```
 
-In policy mode, Agent Reflex tries providers in order and falls back safely to `rules` when a provider is unavailable, unconfigured, times out, or returns invalid output. The recommended public-install default is rules-first because it gives every agent an immediate, dependency-free first routing hop. Users with a running local Needle/Cactus server can switch to model-first order in the web UI.
+In policy mode, Agent Reflex tries providers in order. The recommended public-install default is rules-first because it gives every agent an immediate, dependency-free first routing hop. If a reflex provider is configured, Needle/Cactus or Jev can handle the typed decision next. If the decision is low-confidence, risky, or too complex for the reflex layer, the host agent escalates to the full LLM.
 
 Supported policy names:
 
-- `auto` — dependency-free public-install default: `rules, cactus, jev, openai-compatible`
+- `auto` — dependency-free public-install default: `rules, cactus/Needle, jev, openai-compatible/full LLM fallback`
 - `local-first` — prefer local/private decisions: `cactus, rules`
 - `cloud-first` — prefer typed/cloud providers: `jev, openai-compatible, rules`
 - `rules-only` — deterministic only
@@ -39,7 +45,7 @@ You can override the exact order with:
 export AGENT_REFLEX_PROVIDER_ORDER="jev,cactus,rules"
 ```
 
-`rules` is always appended as the terminal fallback.
+`rules` is always kept in the chain as the deterministic safety net.
 
 ## Deterministic guardrails
 
@@ -67,7 +73,7 @@ Policy-driven provider selection.
 agent-reflex risk --provider auto --input examples/risk-production-write.json
 ```
 
-If Cactus/Jev/OpenAI-compatible providers are unavailable, the command still returns a usable `rules` decision with `fallback: true`.
+If Needle/Cactus/Jev/OpenAI-compatible providers are unavailable, the command still returns a usable `rules` decision.
 
 ### `jev` / `typesafe`
 
@@ -89,9 +95,9 @@ Current behavior: if these are missing or the provider fails, Agent Reflex falls
 }
 ```
 
-### `cactus`
+### `cactus` / Needle
 
-Cactus can run as a local OpenAI-compatible HTTP server:
+Needle can run through Cactus as a local OpenAI-compatible HTTP server:
 
 ```bash
 brew install cactus-compute/cactus/cactus
@@ -109,9 +115,9 @@ export AGENT_REFLEX_CACTUS_MODEL="needle-cq4"
 
 Current behavior: uses a Cactus-specific tool-call adapter. Needle often returns empty plain-text content, so Agent Reflex forces an OpenAI-style function call, parses `tool_calls`, then repairs/fills the result with deterministic `rules` defaults. For Hermes preflight, Agent Reflex now sends `route + risk + skill` as one bundled Cactus tool call instead of three separate local model calls. The result can report `provider: "cactus"` and `fallback: false` while rules still act as safety guardrails for missing or malformed fields.
 
-### `openai-compatible`
+### `openai-compatible` / full LLM fallback
 
-Reserved for OpenAI-compatible structured output APIs.
+Reserved for OpenAI-compatible structured output APIs. In the recommended route, this is the last provider-level stop before the host agent uses the full LLM for deeper reasoning and execution.
 
 Expected environment:
 

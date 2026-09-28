@@ -54,10 +54,10 @@ The UI uses guided controls for the common values so users do not need to memori
 
 - provider dropdown: `auto`, `rules`, `cactus`, `jev`, or `openai-compatible`;
 - provider policy dropdown: `auto`, `local-first`, `cloud-first`, or `rules-only`;
-- fallback-order presets;
+- fallback-order presets, including the recommended `rules → Needle/Cactus → Jev → LLM` route;
 - automatic Hermes preflight toggle;
 - bundled preflight kind presets;
-- common Cactus/OpenAI-compatible model presets while preserving custom current values.
+- common Needle/Cactus/OpenAI-compatible model presets while preserving custom current values.
 
 Endpoint URLs and API keys remain text/password fields because those values are environment-specific.
 
@@ -85,7 +85,7 @@ The UI can run a sample decision from the browser. Select `preflight` to test th
 
 - provider order;
 - fallback behavior;
-- Cactus/Jev availability;
+- Needle/Cactus/Jev availability;
 - deterministic rules output.
 
 Example CLI equivalents:

@@ -22,10 +22,10 @@ Agent Reflex gives those decisions a contract.
 
 Measured locally on a production-publish risk classification, deterministic rules returned in ~130 ms, local Cactus returned in ~635 ms for a single risk call, a bundled Cactus route/risk/skill preflight returned in ~0.43 sec, and the main Hermes reasoning model took ~27.8 sec. The point is not to replace the LLM; it is to reserve the full LLM for work that actually needs full reasoning.
 
-Recommended escalation:
+Recommended routing/escalation:
 
 ```text
-rules → Cactus/local reflex → Jev/future typed providers → full LLM
+rules → Needle/Cactus or Jev reflex → full LLM
 ```
 
 ## Install locally
@@ -105,7 +105,7 @@ Agent Reflex includes a local-only configuration UI:
 agent-reflex-web --host 127.0.0.1 --port 8765
 ```
 
-Open `http://127.0.0.1:8765` to edit provider policy, automatic Hermes preflight, Cactus/Jev/OpenAI-compatible settings, and run a test decision. The UI writes `~/.agent-reflex/config.json`; environment variables still override config values. See [`docs/web-ui.md`](docs/web-ui.md).
+Open `http://127.0.0.1:8765` to edit provider policy, automatic Hermes preflight, Needle/Cactus/Jev/OpenAI-compatible settings, and run a test decision. The UI writes `~/.agent-reflex/config.json`; environment variables still override config values. See [`docs/web-ui.md`](docs/web-ui.md).
 
 ## Example
 
@@ -157,8 +157,8 @@ Current:
 Provider adapters are documented in [`docs/providers.md`](docs/providers.md):
 
 - `jev` / `typesafe` — TypeSafe/Jev structured decision endpoint
-- `cactus` — Cactus-compatible structured decision endpoint or local runtime
-- `openai-compatible` — OpenAI-compatible structured output endpoint
+- `cactus` — Needle/Cactus-compatible structured decision endpoint or local runtime
+- `openai-compatible` — optional LLM/provider fallback before escalating to the host agent's full reasoning model
 - `ollama` / local models — future local adapters
 
 Recommended provider-neutral mode:

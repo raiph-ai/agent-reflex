@@ -36,7 +36,7 @@ def provider_order(policy: str | None = None) -> list[str]:
         else:
             order = [str(item) for item in DEFAULT_AUTO_ORDER]
 
-    # Rules must always be the terminal fallback in policy mode.
+    # Rules must always remain available as the deterministic safety net.
     if "rules" not in order:
         order.append("rules")
     return order
